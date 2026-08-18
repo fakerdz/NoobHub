@@ -38,7 +38,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Switch_Freeze="SWITCH_FREEZE",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,PROGRESS_STUCK_SECS=180,TRANSIT_STUCK_SECS=30,FPS_DEAD=1.5,FPS_SPREAD=.5,FPS_WINDOW=30,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,RAID_OPEN_CHECK=8,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,PROGRESS_STUCK_SECS=180,TRANSIT_STUCK_SECS=30,FPS_DEAD=1.5,FPS_SPREAD=.5,FPS_WINDOW=30,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,SWITCH_FREEZE=5,RAID_OPEN_CHECK=8,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -2321,13 +2321,33 @@ end   -- LOW_GRAPHIC
 	end)
 	local budget=math.max(.004,num("TICK_BUDGET",.012))
 	local due={}
+	-- ══ ĐÓNG BĂNG LÚC CHUYỂN MAP ══════════════════════════════════════════════
+	-- id() đổi = đang chuyển map. Khoảnh khắc đó client vừa dựng lại thế giới vừa
+	-- kéo stream, nhồi thêm remote vào là nghẽn -> máy yếu bị đá về main.
+	-- Nên: id() vừa đổi -> NGƯNG HẾT job, đẩy luôn lịch chạy của chúng ra sau,
+	-- SWITCH_FREEZE giây sau mới cho chạy lại.
+	--
+	-- Mốc là CHÍNH id() chứ không phải cờ raidPending, nên không thể kẹt: map đổi
+	-- xong là đồng hồ chạy, hết 5s tự mở, không cần ai gỡ. Nếu buộc vào raidPending
+	-- thì cờ đó do controller xoá mà controller lại đang bị đóng băng -> khoá chết.
+	local seenInst,thawAt=tostring(id()),-1e9
+	local function switching()
+		local cur=tostring(id())
+		if cur~=seenInst then
+			seenInst=cur; thawAt=clock()+num("SWITCH_FREEZE",5)
+			for _,j in ipairs(JOBS) do j.at=thawAt end
+		end
+		return clock()<thawAt
+	end
 	-- The only worker. All remote calls are serialized here.
 	task.spawn(function()
 		while alive() do
+			if switching() then task.wait(.25) else
 			local tick=clock(); table.clear(due); for _,j in ipairs(JOBS) do if tick>=j.at then due[#due+1]=j end end
 			table.sort(due,function(a,b) local da,db=tick-a.at,tick-b.at; return da==db and a.seq<b.seq or da>db end)
 			for _,j in ipairs(due) do if clock()-tick>=budget then break end; local ok,res=pcall(j.fn); if j.once or res=="done" then remove(j.name) else j.at=clock()+math.max(.02,j.every*(.75+RNG:NextNumber()*.5)) end end
 			local nextAt=tick+.5; for _,j in ipairs(JOBS) do if j.at<nextAt then nextAt=j.at end end; task.wait(math.clamp(nextAt-clock(),.02,.5))
+			end
 		end
 		for i=#JOBS,1,-1 do JOBS[i]=nil end
 	end)
