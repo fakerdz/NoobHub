@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,PROGRESS_STUCK_SECS=180,TRANSIT_STUCK_SECS=30,FPS_DEAD=1.5,FPS_SPREAD=.5,FPS_WINDOW=30,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.05,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,RAID_OPEN_CHECK=8,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,PROGRESS_STUCK_SECS=180,TRANSIT_STUCK_SECS=30,FPS_DEAD=1.5,FPS_SPREAD=.5,FPS_WINDOW=30,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.05,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,RAID_OPEN_CHECK=8,GATE_INSTANCE="FiestaMaze",ENTRY_SETTLE=10}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -1401,6 +1401,7 @@ end   -- LOW_GRAPHIC
 	local lobbyAt=0           -- lúc bắt đầu nâng ở lần ghé lobby này (cho LOBBY_MAX_SECS)
 	local noTargetAt=0
 	local raidOpenAt=0        -- lúc vừa bắn mở raid, để soi cửa sổ vào maze
+	local mazeAt=0            -- lúc id() vừa thành FiestaMaze, để chờ maze dựng xong
 	local function move()
 		if not CFG.TELE_ZONE then farmDebug("TELE_SKIP",num("FARM_DEBUG_EVERY",2),"reason=TELE_ZONE_FALSE"); return end
 		if S.phase=="pad" or S.phase=="claim" then farmDebug("TELE_SKIP",num("FARM_DEBUG_EVERY",2),"reason=phase","phase=",S.phase); return end
@@ -1418,6 +1419,7 @@ end   -- LOW_GRAPHIC
 			return
 		end
 		if not(maze() or eternal()) then
+			mazeAt=0
 			-- Ra khỏi maze là RESET, y như file gốc:
 			--     if not (CFG.TELE_ZONE and inMaze()) then
 			--         teleKey = nil; raidEntryZoneDone = false; return end
@@ -1445,6 +1447,19 @@ end   -- LOW_GRAPHIC
 		-- thử lại ("Neu breakable chua load thi chua danh dau xong, vong sau se
 		-- tiep tuc thu") - move() đã chạy mỗi MOVE_STEP 0.5s rồi, chồng thêm một
 		-- cổng 0.5s nữa chỉ làm chậm gấp đôi.
+		if mazeAt==0 then mazeAt=clock() end
+		-- ══ CHỜ MAZE DỰNG XONG RỒI MỚI TELE LẦN ĐẦU ══════════════════════════
+		-- Server vừa đặt mình ở spawn room mà tele đi ngay thì trên máy yếu rất dễ
+		-- rơi vào ô CHƯA dựng - không có sàn -> rơi -> bị đá về main. PC dựng kịp
+		-- nên không thấy, điện thoại thì thấy.
+		-- Chờ ENTRY_SETTLE giây kể từ lúc id() thành FiestaMaze, VÀ phải thật sự
+		-- thấy BREAK_ZONES rồi mới đi. Trong lúc chờ vẫn giục stream.
+		if not raidEntry and clock()-mazeAt<num("ENTRY_SETTLE",10) then
+			askStream(r.Position)
+			farmDebug("TELE_ENTRY_WAIT",num("FARM_DEBUG_EVERY",2),"reason=cho-maze-dung",
+				"con=",math.floor(num("ENTRY_SETTLE",10)-(clock()-mazeAt)),"zones=",select(3,nearestBreakZone(r.Position)))
+			return
+		end
 		if not raidEntry then
 			-- BREAK ZONE trước: nó có ngay lúc phòng vừa dựng, sớm hơn breakable vài giây.
 			local zone,zdist,zn=nearestBreakZone(r.Position)
