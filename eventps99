@@ -2516,22 +2516,23 @@ end   -- LOW_GRAPHIC
 	-- zoneReady() trả TRUE khi đang ở NGOÀI maze, nên lobby vẫn farm bình thường;
 	-- chỉ trong maze mà chưa thấy BREAK_ZONES mới đứng chờ.
 	-- Không thể khoá chết: zone do server đẩy xuống, không cần job nào làm hộ.
-	-- ══ NHẬT KÝ CHUYỂN INSTANCE ══════════════════════════════════════════════
-	-- Ghi MỌI lần id() đổi, không cần Farm_Debug. Đây là thứ phân biệt được
-	-- "enterLobby tự lặp" với "bị đá khỏi raid rồi mới về lobby":
-	--     FiestaLobby -> nil -> FiestaLobby            = enterLobby lặp
-	--     FiestaLobby -> FiestaMaze -> nil -> Lobby    = bị đá khỏi raid
-	-- Đọc: for _,v in ipairs(getgenv().__FIESTA_LOG or {}) do print(v) end
-	local seenInst="\0"
-	local function trackInst()
-		local cur=tostring(id())
-		if cur==seenInst then return end
-		local r=root()
-		LOG("[INST]",seenInst,"->",cur,"phase="..tostring(S.phase),
-			"Y="..(r and ("%.0f"):format(r.Position.Y) or "?"))
-		seenInst=cur
-	end
 	task.spawn(function()
+		-- ══ NHẬT KÝ CHUYỂN INSTANCE ══════════════════════════════════════════
+		-- Khai TRONG luồng này chứ không ở scope ngoài: Luau giới hạn 200 local
+		-- mỗi hàm, scope ngoài đã sát trần ("Out of local registers").
+		-- Ghi MỌI lần id() đổi, không cần Farm_Debug:
+		--     FiestaLobby -> nil -> FiestaLobby            = enterLobby lặp
+		--     FiestaLobby -> FiestaMaze -> nil -> Lobby    = bị đá khỏi raid
+		-- Đọc: for _,v in ipairs(getgenv().__FIESTA_LOG or {}) do print(v) end
+		local seenInst="\0"
+		local function trackInst()
+			local cur=tostring(id())
+			if cur==seenInst then return end
+			local r=root()
+			LOG("[INST]",seenInst,"->",cur,"phase="..tostring(S.phase),
+				"Y="..(r and ("%.0f"):format(r.Position.Y) or "?"))
+			seenInst=cur
+		end
 		while alive() do
 			trackInst()
 			if busy() or not zoneReady() then
