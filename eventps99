@@ -57,7 +57,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,ENTER_MAX=30,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -310,6 +310,33 @@ local OK, ERR = pcall(function()
 		if want=="" then return cur~=nil end
 		if cur~=want then return false end
 		return zoneReady()
+	end
+	-- ══ LỜI GỌI CÓ YIELD PHẢI CHẠY LUỒNG RIÊNG ══════════════════════════════
+	-- Inst.Enter và ClientRaidInstance:Join đều NHẢ LUỒNG. Trong dump, thân
+	-- enterInstance có:
+	--     while not u24 and u152 do task.wait() end
+	--     leaveInstance(nil, false); task.wait(0.1)
+	--     Network.Invoke("Instancing_PlayerEnterInstance", id)   -- chờ server
+	--     logServerOwnedWait(id, "waiting for instancesMapReady")
+	-- File này chỉ có MỘT task.spawn. Gọi thẳng mấy hàm đó trong scheduler là
+	-- treo cả vòng lặp suốt lúc vào instance - kể cả floatChar. Trọng lực bật
+	-- lại đúng lúc sàn chưa có -> rơi -> quá 12 stud -> watchdog sàn đá ra.
+	-- LobbyRaid/RaidMake không dính vì chúng có luồng riêng.
+	--
+	-- Nên: tách RIÊNG mấy lời gọi yield ra một luồng dùng một lần. Vẫn đúng tinh
+	-- thần một luồng làm việc - luồng phụ chỉ sống trong lúc vào instance, và
+	-- scheduler thì bỏ qua mọi job (trừ floatChar) trong lúc đó.
+	local entering,enteringAt=false,0
+	local function busy()
+		if not entering then return false end
+		if clock()-enteringAt>num("ENTER_MAX",30) then entering=false; return false end   -- chốt chống kẹt
+		return true
+	end
+	local function bg(fn)
+		if busy() then return false end
+		entering,enteringAt=true,clock()
+		task.spawn(function() pcall(fn); entering=false end)
+		return true
 	end
 
 	-- Key check runs once, then its retry is another scheduled step.
@@ -1297,10 +1324,11 @@ end   -- LOW_GRAPHIC
 		-- trong executor; vỡ trước khi gọi v188 thì u187 KHÔNG BAO GIỜ chạy ->
 		-- không vào được, không thấy lỗi, pcall vẫn trả true.
 		-- Thử nhánh thẳng trước, hỏng mới rơi về nhánh cũ.
-		pcall(Inst.Enter,"FiestaLobby",true)
-		if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
-		if id()=="FiestaLobby" then clearWant(); if toPinataZone then toPinataZone() end; return true end
-		return false
+		bg(function()
+			pcall(Inst.Enter,"FiestaLobby",true)
+			if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
+		end)
+		return false                       -- kết quả đo ở nhịp sau, bằng id()
 	end
 	local function returnFromChallengePad()
 		local r=root(); local p=zonePos()
@@ -1811,20 +1839,27 @@ end   -- LOW_GRAPHIC
 			-- pcall trống nên bị chối cũng im, cứ thế lặp 5s một lần không rõ vì sao.
 			S.raidCreateAt=clock(); raidPendingAt=clock(); want("FiestaMaze")
 			if mine.Join then
-				local ok,res,why=pcall(mine.Join,mine)
-				if not (ok and res) then LOG("[RAID] Join bi choi: "..tostring(ok and why or "loi goi")) end
+				bg(function()
+					local ok,res,why=pcall(mine.Join,mine)
+					if not (ok and res) then LOG("[RAID] Join bi choi: "..tostring(ok and why or "loi goi")) end
+				end)
 			end
 			return false
 		end
 		local p=pickPortal(); if not p then return false end
 		S.raidCreateAt=clock(); raidPendingAt=clock(); want("FiestaMaze")
-		local high=math.max(1,math.floor(n1(Raid.GetDifficultyLevel) or 1)); local limit=math.floor(num("LIMIT_MAX_TIER",0)); local diff=limit>0 and math.min(high,limit) or high; local mode=Raids and Raids.PartyMode and Raids.PartyMode[tostring(CFG.MODE_RAID or "Solo")]; local ok,yes,why,run=pcall(Raid.Create,{Portal=p,Difficulty=diff,PartyMode=mode,Tier=pickTier(diff)})
-		if not (ok and yes) then LOG("[RAID] Create bi choi (cong "..tostring(p).."): "..tostring(ok and why or "loi goi")); return false end
-		run=run or (ClientRaid and select(2,pcall(ClientRaid.GetCurrent)))
-		if run and run.Join then
-			local jok,jres,jwhy=pcall(run.Join,run)
-			if not (jok and jres) then LOG("[RAID] Join sau Create bi choi: "..tostring(jok and jwhy or "loi goi")) end
-		end
+		local high=math.max(1,math.floor(n1(Raid.GetDifficultyLevel) or 1)); local limit=math.floor(num("LIMIT_MAX_TIER",0)); local diff=limit>0 and math.min(high,limit) or high; local mode=Raids and Raids.PartyMode and Raids.PartyMode[tostring(CFG.MODE_RAID or "Solo")]
+		-- Create RỒI Join, cả hai đều Network.Invoke (có yield) -> một luồng phụ
+		-- làm liền mạch, scheduler không bị treo theo.
+		bg(function()
+			local ok,yes,why,run=pcall(Raid.Create,{Portal=p,Difficulty=diff,PartyMode=mode,Tier=pickTier(diff)})
+			if not (ok and yes) then LOG("[RAID] Create bi choi (cong "..tostring(p).."): "..tostring(ok and why or "loi goi")); return end
+			run=run or (ClientRaid and select(2,pcall(ClientRaid.GetCurrent)))
+			if run and run.Join then
+				local jok,jres,jwhy=pcall(run.Join,run)
+				if not (jok and jres) then LOG("[RAID] Join sau Create bi choi: "..tostring(jok and jwhy or "loi goi")) end
+			end
+		end)
 		return false
 	end
 	local function controller()
@@ -2432,7 +2467,7 @@ end   -- LOW_GRAPHIC
 	-- Không thể khoá chết: zone do server đẩy xuống, không cần job nào làm hộ.
 	task.spawn(function()
 		while alive() do
-			if not zoneReady() then
+			if busy() or not zoneReady() then
 				-- MIỄN TRỪ DUY NHẤT: tắt trọng lực. Đúng khoảng này (vừa vào maze,
 				-- zone chưa về, sàn chưa stream) là lúc rơi -> tụt quá 12 stud ->
 				-- watchdog sàn báo server đá ra. Chặn nốt nó thì chính cái cổng
