@@ -41,7 +41,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Zone_Min="ZONE_MIN",Lobby_Settle="LOBBY_SETTLE",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Hard="STUB_HARD",Stub_Size="STUB_SIZE",Stub_NoCollide="STUB_NOCOLLIDE",Stub_Anchor="STUB_ANCHOR",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Zone_Min="ZONE_MIN",Enter_Cooldown="ENTER_COOLDOWN",Lobby_Settle="LOBBY_SETTLE",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Hard="STUB_HARD",Stub_Size="STUB_SIZE",Stub_NoCollide="STUB_NOCOLLIDE",Stub_Anchor="STUB_ANCHOR",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -57,7 +57,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,LOBBY_SETTLE=4,ENTER_MAX=30,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,ENTER_COOLDOWN=15,LOBBY_SETTLE=4,ENTER_MAX=30,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -1290,10 +1290,18 @@ end   -- LOW_GRAPHIC
 		for _,c in ipairs(folder:GetChildren()) do if c:IsA("BasePart") then first=first or c; wanted=wanted-1; if wanted==0 then return c.Position end end end; return first and first.Position
 	end
 	local toPinataZone            -- gán ở dưới, enterLobby gọi tới nên phải khai trước
+	local enterTriedFor=nil       -- id() lúc lần thử vào lobby gần nhất
 	local function enterLobby()
 		-- Vừa vào lobby thì về khu Pinata NGAY, đừng đứng ở cửa Enter.
 		if lobby() then clearWant(); if toPinataZone then toPinataZone() end; return true end; want("FiestaLobby"); local r=root(); if maze() then if clock()>=S.nextAction then if Inst.LeaveViaExit then pcall(Inst.LeaveViaExit,"FiestaMazeSpawnPortal",true) else invoke("Instance: Leave","FiestaMaze") end; S.nextAction=clock()+1 end; return false end
-		if clock()-S.enterAt<1 then return false end; S.enterAt=clock()
+		-- ══ KHÔNG RETRY LIÊN TỤC ══════════════════════════════════════════════
+		-- Trước: cứ mỗi 1 giây lại bắn Enter một lần, controller gọi mỗi nhịp.
+		-- Bắn dồn như vậy chính là thứ tạo cảnh vào lobby rồi rời ra vào lại.
+		-- Giờ: MỘT lần cho mỗi trạng thái. Chỉ thử lại khi id() đã ĐỔI so với lần
+		-- thử trước (tức tình hình thật sự khác đi), hoặc quá ENTER_COOLDOWN giây.
+		local cur=tostring(id())
+		if cur==enterTriedFor and clock()-S.enterAt<num("ENTER_COOLDOWN",15) then return false end
+		enterTriedFor,S.enterAt=cur,clock()
 		-- ══ VÀO LOBBY KHÔNG CẦN TELE TỚI CỔNG ═════════════════════════════════
 		-- Handler của part Enter trong game chỉ làm đúng một việc:
 		--     child2.Touched:Connect(function(p237) ... enterInstance(child.Name) ... end)
@@ -1337,27 +1345,13 @@ end   -- LOW_GRAPHIC
 		-- không vào được, không thấy lỗi, pcall vẫn trả true.
 		-- Thử nhánh thẳng trước, hỏng mới rơi về nhánh cũ.
 		bg(function()
-			-- ══ Y HỆT Fiesta_All: TELE TỚI CỔNG + GIẢ CHẠM ══════════════════
-			--     part = Instancing.GetEnterPart("FiestaLobby")
-			--     root.CFrame = CFrame.new(part.Position + Vector3.new(0,2,0))
-			--     fireTouch(root,part,0); wait .05; fireTouch(root,part,1); wait .2
-			--     chưa vào -> thử NGƯỢC CHIỀU fireTouch(part,root,...)
-			-- Đi qua handler Touched của game thay vì gọi hàm export.
-			-- Kiểm lại id() trong luồng phụ: giữa lúc quyết định và lúc chạy có
-			-- khe hở, gọi Enter khi ĐANG ở lobby sẽ làm nó rời rồi vào lại.
+			-- KHÔNG tele, KHÔNG chạm cổng. Gọi thẳng hàm export - nhân vật đứng yên
+			-- 0 stud. Tham số 2 = bỏ qua GUIFX.Transition (chỗ ném lỗi trong
+			-- executor); LobbyRaid đo được pcall=true, err=nil, vào ngay lần đầu.
+			-- Kiểm lại id() trong luồng phụ: giữa lúc controller quyết định và lúc
+			-- luồng này chạy có khe hở, gọi Enter khi ĐANG ở lobby thì enterInstance
+			-- chạy leaveInstance trước -> rời lobby rồi vào lại.
 			if id()=="FiestaLobby" then return end
-			local part=select(2,pcall(Inst.GetEnterPart,"FiestaLobby"))
-			local r2=root()
-			local touch=(getgenv and getgenv().firetouchinterest) or firetouchinterest
-			if part and r2 and type(touch)=="function" then
-				r2.CFrame=CFrame.new(part.Position+Vector3.new(0,2,0))
-				pcall(touch,r2,part,0); task.wait(.05); pcall(touch,r2,part,1); task.wait(.2)
-				if id()=="FiestaLobby" then return end
-				pcall(touch,part,r2,0); task.wait(.05); pcall(touch,part,r2,1); task.wait(.2)
-				if id()=="FiestaLobby" then return end
-			end
-			-- Chạm không ăn (executor không có firetouchinterest, hoặc cổng chưa
-			-- stream) thì mới dùng hàm export.
 			pcall(Inst.Enter,"FiestaLobby",true)
 			if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
 		end)
@@ -2522,8 +2516,24 @@ end   -- LOW_GRAPHIC
 	-- zoneReady() trả TRUE khi đang ở NGOÀI maze, nên lobby vẫn farm bình thường;
 	-- chỉ trong maze mà chưa thấy BREAK_ZONES mới đứng chờ.
 	-- Không thể khoá chết: zone do server đẩy xuống, không cần job nào làm hộ.
+	-- ══ NHẬT KÝ CHUYỂN INSTANCE ══════════════════════════════════════════════
+	-- Ghi MỌI lần id() đổi, không cần Farm_Debug. Đây là thứ phân biệt được
+	-- "enterLobby tự lặp" với "bị đá khỏi raid rồi mới về lobby":
+	--     FiestaLobby -> nil -> FiestaLobby            = enterLobby lặp
+	--     FiestaLobby -> FiestaMaze -> nil -> Lobby    = bị đá khỏi raid
+	-- Đọc: for _,v in ipairs(getgenv().__FIESTA_LOG or {}) do print(v) end
+	local seenInst="\0"
+	local function trackInst()
+		local cur=tostring(id())
+		if cur==seenInst then return end
+		local r=root()
+		LOG("[INST]",seenInst,"->",cur,"phase="..tostring(S.phase),
+			"Y="..(r and ("%.0f"):format(r.Position.Y) or "?"))
+		seenInst=cur
+	end
 	task.spawn(function()
 		while alive() do
+			trackInst()
 			if busy() or not zoneReady() then
 				-- MIỄN TRỪ DUY NHẤT: tắt trọng lực. Đúng khoảng này (vừa vào maze,
 				-- zone chưa về, sàn chưa stream) là lúc rơi -> tụt quá 12 stud ->
