@@ -1384,16 +1384,24 @@ end   -- LOW_GRAPHIC
 		if not ok or typeof(model)~="Instance" then return nil,nil,0 end
 		local rooms=model:FindFirstChild("Rooms"); if not rooms then return nil,nil,0 end
 		local best,bestDist,n=nil,nil,0
-		for _,room in ipairs(rooms:GetChildren()) do
-			local bz=room:FindFirstChild("BREAK_ZONES")
-			if bz then
-				for _,part in ipairs(bz:GetChildren()) do
-					if part:IsA("BasePart") then
-						n=n+1
-						local d=(part.Position-position).Magnitude
-						if not bestDist or d<bestDist then best,bestDist=part,d end
-					end
+		local function eat(bz)
+			for _,part in ipairs(bz:GetChildren()) do
+				if part:IsA("BasePart") then
+					n=n+1
+					local d=(part.Position-position).Magnitude
+					if not bestDist or d<bestDist then best,bestDist=part,d end
 				end
+			end
+		end
+		-- Rooms chứa đủ thứ: Boss1..3, Room1..n, Gate_x_y_z, Preview_x_y,
+		-- Checkerboard, Perimeter... KHÔNG lọc theo tên - tên là thứ hay đổi nhất
+		-- giữa các bản game. Chỉ hỏi "có BREAK_ZONES không", có thì lấy part.
+		-- Không tìm thấy thì bỏ qua, khỏi cần biết đó là phòng hay tường.
+		for _,room in ipairs(rooms:GetChildren()) do
+			if room.Name=="BREAK_ZONES" then eat(room)
+			else
+				local bz=room:FindFirstChild("BREAK_ZONES")
+				if bz then eat(bz) end
 			end
 		end
 		return best,bestDist,n
