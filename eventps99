@@ -1,1 +1,3217 @@
+local __FIESTA_OK, __FIESTA_ERROR = pcall(function()
+repeat task.wait() until game:IsLoaded()
+    repeat task.wait() until game.PlaceId ~= nil
+    repeat task.wait() until game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+    repeat task.wait() until game:GetService("Workspace").__THINGS and game:GetService("Workspace").__DEBRIS
+    pcall(function() math.randomseed(Random.new():NextInteger(1, 2147483647)) end)
+    pcall(function()
+        local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+        local intro = pg:FindFirstChild("__INTRO")
+        if intro then intro.AncestryChanged:Wait() end
+    end)
 
+local ENV = getgenv and getgenv() or _G
+
+--== CHECK KEY (NOOB HUB) — y logic PvC ==--
+-- Khai trước khi chạy: script_key = "..."  |  script_product_id = "..."
+do
+	local HTTPk = game:GetService("HttpService")
+	local LPk = game:GetService("Players").LocalPlayer
+	local function gvar(name)                 -- loader khai global trần -> dò 3 chỗ
+		local v
+		if getgenv then local ok, g = pcall(getgenv) if ok and type(g) == "table" then v = rawget(g, name) end end
+		if v == nil and getfenv then local ok, e = pcall(getfenv, 0) if ok and type(e) == "table" then v = rawget(e, name) end end
+		if v == nil and _G then v = rawget(_G, name) end
+		return v
+	end
+	local req_ = (syn and syn.request) or (http and http.request) or http_request or request
+	local function kick(reason)
+		pcall(function() LPk:Kick(tostring(reason or "[NOOB HUB] Invalid Key")) end)
+		task.wait(9e9)
+	end
+	local key = tostring(gvar("script_key") or ""):gsub("^%s+", ""):gsub("%s+$", "")
+	local pid = tostring(gvar("script_product_id") or ""):gsub("^%s+", ""):gsub("%s+$", ""):upper()
+	if key == "" or pid == "" then kick("[NOOB HUB] Invalid Key") end
+	if type(req_) ~= "function" then kick("[NOOB HUB] Cant Connect") end
+	local function ask()
+		local body = {
+			username = LPk.Name, placeid = game.PlaceId, jobid = game.JobId,
+			idroblox = LPk.UserId, key = key, product_id = pid, token = "thuankia213",
+		}
+		local hw = gvar("gethwid") or gvar("get_hwid")
+		if type(hw) == "function" then
+			local okH, v = pcall(hw)
+			if okH and v then body.hwid = tostring(v) end
+		end
+		local ok, res = pcall(req_, {
+			Url = "https://api.noobhub.click/checkkey", Method = "POST",
+			Headers = { ["Content-Type"] = "application/json", ["Accept"] = "application/json" },
+			Body = HTTPk:JSONEncode(body),
+		})
+		if not ok or not res then return false, 0 end
+		local code = tonumber(res.StatusCode or res.status_code or res.Status or res.status or 0) or 0
+		local data; pcall(function() data = HTTPk:JSONDecode(tostring(res.Body or res.body or "")) end)
+		return true, code, data
+	end
+	local ok, code, data = ask()
+	if not ok then kick("[NOOB HUB] Cant Connect") end
+	if not (code == 200 and data and data.ok == true) then
+		local why = data and tostring(data.reason or data.error or "") or ""
+		kick(why ~= "" and why or "[NOOB HUB] Invalid Key")
+	end
+	task.spawn(function()                     -- 20s kiểm lại, hụt 3 lần liên tiếp thì kick
+		local miss = 0
+		while true do
+			task.wait(20)
+			local okL, codeL, dataL = ask()
+			if okL and codeL == 200 and dataL and dataL.ok == true then miss = 0
+			elseif okL and codeL == 403 then
+				local why = dataL and tostring(dataL.reason or dataL.error or "") or ""
+				kick(why ~= "" and why or "[NOOB HUB] Invalid Key") return
+			else
+				miss = miss + 1
+				if miss >= 3 then kick("[NOOB HUB] Cant Connect") return end
+	end
+	end
+end)
+end
+
+-- Bảng config CHÍNH THỨC: getgenv()._PinataMaze
+-- (_AutoRank / _Fiesta chỉ còn là alias để config cũ không gãy)
+ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
+local CFG = ENV._PinataMaze
+ENV._Fiesta, ENV._AutoRank = CFG, CFG
+-- Tên "đẹp" ngoài config -> tên nội bộ, đọc ngay trong chính bảng đó.
+for source, target in pairs({
+	Time_Challenge = "CHALLENGE_MIN", Time_Raid = "RAID_MIN",
+	Limit_Level_Challenge = "LIMIT_LEVEL_CHALLENGE", Limit_Max_Tier = "LIMIT_MAX_TIER",
+	Mode_Raid = "MODE_RAID", Rainbow = "RAINBOW",
+	Open_Fiesta_Egg = "OPEN_KEY_EGG", Enchant = "Enchant", Potion = "Potion",
+	Open_LootBox = "OPEN_LOOTBOX",
+	Flag = "Flag", Toy = "Toy", Fruit = "Fruit", Anti_Afk = "ANTI_AFK", COUNT_ITEMS = "COUNT_ITEMS", Notify = "NOTIFY", Webhook = "Webhook", Ping_ID = "Ping_ID",
+	Mail_To = "MAIL_TO", Mail_Items = "MAIL_ITEMS", FPS = "FPS", Claim_Mail = "CLAIM_MAIL",
+	Low_Gaphic = "LOW_GRAPHIC", Low_Graphic = "LOW_GRAPHIC",
+	Disable3D = "DISABLE_3D", Safe_Mode = "SAFE_MODE",
+	Mute_Remotes = "MUTE_REMOTES", Junk_Every = "JUNK_EVERY",
+	Breakable_Proxy = "BREAKABLE_PROXY", Debris_Purge = "DEBRIS_PURGE", Debris_Every = "DEBRIS_EVERY",
+	Mute_Hit_FX = "MUTE_HIT_FX", Kill_Event_FX = "KILL_EVENT_FX", Kill_Glow_Task = "KILL_GLOW_TASK",
+	Only_Keep_Remotes = "ONLY_KEEP_REMOTES", Keep_Remotes = "KEEP_REMOTES",
+	Tap_Rate = "TAP_RATE", Tap_Rate_Auto = "TAP_RATE_AUTO", Max_Target = "MAX_TARGET",
+	Tap_Dist = "TAP_DIST", Tele_Far = "TELE_FAR", Tele_Only_Empty = "TELE_ONLY_EMPTY",
+	Stop_Challenge_When_PinataMax = "STOP_CHALLENGE_WHEN_PINATAMAX",
+	Potato = "POTATO", Pet_Render = "PET_RENDER",
+	Fake_Mobile = "FAKE_MOBILE", Kill_Other_Pets = "KILL_OTHER_PETS",
+	Resume = "RESUME", Save_Every = "SAVE_EVERY",
+}) do
+	-- Public/camel-case keys are authoritative when supplied, including 0.
+	if CFG[source] ~= nil then CFG[target] = CFG[source] end
+end
+for k, v in pairs({
+	-- MODE + THOI GIAN
+	FIRST_MODE     = "challenge",  -- bat dau bang mode nao: "challenge" | "raid"
+	CHALLENGE_MIN  = 10,           -- phut chay mode challenge
+	RAID_MIN       = 30,           -- phut chay mode raid
+	LIMIT_LEVEL_CHALLENGE = 0,     -- 0 = no cap; otherwise stop at displayed Pinata level
+	-- Pinata kịch trần (level >= maxLevel, hoặc chạm Limit_Level_Challenge) thì
+	-- sang raid luôn, khỏi đứng chờ hết Time_Challenge.
+	STOP_CHALLENGE_WHEN_PINATAMAX = true,
+	LIMIT_MAX_TIER = 0,            -- 0 = highest unlocked; otherwise min(highest unlocked, config)
+	RAINBOW        = true,         -- strongest Pinata Fiesta pets only
+	-- Raid: con gio thi xong tao raid moi luon (retry); het gio moi ve lobby doi mode.
+	-- LOBBY (challenge)
+	ENTER          = true,
+	ZONE_INDEX     = 2,            -- BREAK_ZONES lobby co 2 part, lay part nay
+	CHALLENGE_ONLY_PINATA = true,  -- mode challenge CHI dap con Pinata Challenge
+	FOCUS_PINATA   = true,         -- co Pinata (challenge/boss) -> DON HET pet+tap vao no
+	AUTO_CHALLENGE = true,
+	AUTO_UPGRADE   = true,
+	UPGRADES       = { "FiestaDamage", "FiestaSmashSpeed", "FiestaPets", "FiestaKeyDrops" },
+	-- RAID
+	MODE_RAID      = "Solo",       -- Solo | Friends | FriendsAndClan | Open
+	CLAIM_EGG      = true,
+	OPEN_KEY_EGG   = true,        -- co mo egg dac biet CAN Fiesta Key khong (chi mo khi CO key)
+	OPEN_LOOTBOX   = "",          -- ten lootbox muon mo; "" = tat
+	-- CHUNG (ca 2 mode)
+	AUTO_TAP       = true,
+	PET_DAMAGE     = true,
+	DISABLE_PET    = true,
+	ORB_COLLECT    = true,
+	TELE_ZONE      = true,
+	TAP_DIST       = 220,
+	MAX_TARGET     = 30,
+	TAP_RATE       = 8,           -- trần mong muốn; bị hạ theo mức server nhận
+	TAP_RATE_AUTO  = true,         -- đọc enchant Swift Taps -> không bắn thừa
+	TAP_STEP       = 0.05,         -- nhịp vòng tap
+	PET_ROUTE      = 0.3,          -- bao lâu chỉ lại mục tiêu cho pet
+	TARGET_REFRESH = 5,            -- trần quét lại mục tiêu (còn sống thì không quét)
+	TELE_NEAR      = 25,           -- lệch quá bao nhiêu stud mới tele lại (nhỏ = giật)
+	TELE_FAR       = 220,          -- (raid) văng xa hơn mức này mới chịu tele lại
+	TELE_ONLY_EMPTY = true,        -- trong TAP_DIST còn breakable -> KHÔNG tele
+	PET_HEARTBEAT  = 10,           -- mục tiêu không đổi thì bao lâu bắn lại lệnh pet
+	SCAN_EVERY     = 0.5,          -- bao lâu quét lại breakable (cache dùng chung)
+	ZONE_EVERY     = 1,            -- bao lâu tính lại mục tiêu trong maze
+	MOVE_STEP      = 0.5,          -- nhịp vòng di chuyển
+	HUD_FX_STEP    = 0.5,          -- nhịp hiệu ứng gradient HUD
+	MUTE_REMOTES   = true,         -- ngắt handler remote bắn dồn (số damage, thanh máu)
+	POTATO         = true,         -- Variables.PotatoMode: chặn TẠO particle/số damage
+	PET_RENDER     = false,        -- false = không dựng model pet phía client (DPS giữ nguyên)
+	PET_RENDER_EVERY = 20,         -- ép tắt lại sau khi đổi pet
+	FAKE_MOBILE    = true,         -- Variables.Mobile = true: game tự bỏ particle/tooltip/glow
+	KILL_OTHER_PETS = true,        -- dọn pet của người chơi khác trong lobby
+	OTHER_PETS_EVERY = 15,
+	RESUME         = true,         -- vào lại game thì giữ mode + số phút đã chạy
+	RESUME_MAX_GAP = 3600,         -- nghỉ lâu hơn (giây) thì tính lại mode từ đầu
+	SAVE_EVERY     = 15,           -- bao lâu ghi tiến độ ra file 1 lần
+	JUNK_EVERY     = 20,           -- bao lâu quét lại script VFX/HUD của event
+	-- Lột phần hình của breakable: chỉ chừa Model + PrimaryPart + Hitbox, XOÁ hẳn
+	-- mesh/decal/particle phụ. Nặng tay hơn ẩn (Transparency) rất nhiều: bớt cả
+	-- draw call lẫn RAM. Không đụng vị trí/uid nên DPS y nguyên. Cần LOW_GRAPHIC >= 2.
+	BREAKABLE_PROXY = true,       -- true = bật (mặc định tắt vì là dao hai lưỡi)
+	DEBRIS_PURGE   = true,         -- xoá rác trong workspace.__DEBRIS theo chu kỳ
+	DEBRIS_EVERY   = 30,           -- bao lâu dọn __DEBRIS 1 lần (giây)
+	-- Cắt 2 tín hiệu chạy theo TỪNG CÚ ĐÁNH của BreakableFrontend (Damaged,
+	-- HitAnimation). Người nghe chỉ có PinataBossBar / PinataHangFX / Random
+	-- Events.Pinata - toàn đồ hình. Damage tính ở server nên DPS không đổi.
+	MUTE_HIT_FX    = true,
+	MUTE_HIT_EVERY = 15,           -- quét lại (ra/vào instance là nó nối lại)
+	-- Cho phép giết luôn module UI/FX của event (bảng máu boss, thanh level,
+	-- bảng điểm, ladder...). Cần Low_Gaphic = 3 + Safe_Mode = 0. Mặc định tắt.
+	KILL_EVENT_FX  = true,
+	-- Huỷ startGlowAnimationTask (mỗi frame) + startBillboardTask (0.25s) của
+	-- BreakableFrontend. Cần Safe_Mode = 0 và executor có getgc.
+	KILL_GLOW_TASK = true,
+	-- Ngắt HẾT listener remote, chỉ chừa danh sách trắng ở gamePerfSwitches.
+	-- Mạnh nhất còn lại nhưng cũng rủi ro nhất -> mặc định tắt, bật thì test kỹ.
+	ONLY_KEEP_REMOTES = false,
+	KEEP_REMOTES   = {},           -- chừa thêm: { "Zone Quests:", "Ranks_" }
+	ONLY_KEEP_EVERY = 30,          -- bao lâu quét lại (remote stream vào sau)
+	Enchant        = {},
+	Potion         = {},
+	Flag           = {},
+	Toy            = (ENV.AW_TOY == nil) and true or ENV.AW_TOY,
+	Fruit          = true,         -- ăn Rainbow Fruit, false = tắt
+	ANTI_AFK       = true,         -- chống kick AFK, false = tắt
+	COUNT_ITEMS    = { { Class = "Pet", Id = "All Huges" } },
+	Webhook        = "",
+	Ping_ID        = "",
+	-- Báo drop về webhook. Cú pháp y COUNT_ITEMS; Huge+ thì tự ping Ping_ID.
+	NOTIFY         = { { Class = "Pet", Id = "All Huges" } },
+	NOTIFY_EVERY   = 30,           -- bao lâu soi túi 1 lần
+	MAIL_TO        = "",           -- user nhận mail (chuỗi, hoặc bảng nhiều tên)
+	MAIL_ITEMS     = {},           -- { { Class=, Id=, Tier=, MinAmount=, KeepAmount= } }
+	MAIL_EVERY     = 60,           -- bao lâu quét claim/gửi mail 1 lần
+	CLAIM_MAIL     = true,         -- tự nhận hết mail trong inbox
+	CLAIM_MAIL_EVERY = 15,         -- bao lâu nhận mail 1 lần
+	FPS            = 0,            -- 0 = không khoá fps
+	CHALLENGE_RETRY = 5,           -- giây tối thiểu giữa 2 lần ra pad gọi Start
+	LOW_GRAPHIC    = 0,            -- 0 tắt | 1 render | 2 dọn hình | 3 dọn cả script
+	DISABLE_3D     = false,        -- tắt hẳn khâu vẽ 3D (GUI vẫn hiện)
+	SAFE_MODE      = 0,            -- 0 dọn mạnh nhất ... 3 nhẹ tay nhất
+}) do if CFG[k] == nil then CFG[k] = v end end
+if type(CFG.UPGRADES) ~= "table" or #CFG.UPGRADES == 0 then
+	CFG.UPGRADES = { "FiestaDamage", "FiestaSmashSpeed", "FiestaPets", "FiestaKeyDrops" }
+end
+
+do
+	--== LOW GRAPHICS (bê từ AutoWorldRank, chỉnh cho event Fiesta) ==--
+	-- Bật trong config: getgenv()._PinataMaze = { Low_Gaphic = 3, Disable3D = true, Safe_Mode = 0 }
+	--   0 = tắt | 1 = chỉnh render | 2 = dọn hình ảnh | 3 = dọn cả script/instance
+	local RS = game:GetService("ReplicatedStorage")
+	local Players = game:GetService("Players")
+	local LocalPlayer = Players.LocalPlayer
+	local L = RS:WaitForChild("Library", 60)
+
+	local FC = ENV._PinataMaze or {}             -- config chung của script
+	local LG = ENV.AutoRankLowGraphics or {}
+	ENV.AutoRankLowGraphics = LG
+	LG.LEVEL = FC.LOW_GRAPHIC or LG.LEVEL or 0
+	-- 0 = dọn mạnh nhất (quét getgc/getconnections) | 1 = bỏ 2 hàm đó | 2-3 = càng nhẹ tay
+	LG.SAFE_MODE = tonumber(FC.SAFE_MODE or LG.SAFE_MODE) or 0
+
+	local function requestedLevel()
+		local value = LG.LEVEL
+		if value == false or value == nil or value == 0 then return 0 end
+		if value == true then return 1 end
+		return math.clamp(tonumber(value) or 1, 0, 3)
+	end
+
+	-- Make reruns cheap and invalidate every callback from the previous copy.
+	local oldRuntime = ENV.__AUTORANK_LOW_GRAPHIC_RUNTIME or {}
+	for _, connection in ipairs(oldRuntime.connections or {}) do pcall(function() connection:Disconnect() end) end
+	for _, thread in ipairs(oldRuntime.threads or {}) do pcall(task.cancel, thread) end
+	local connections, threads = {}, {}
+	ENV.__AUTORANK_LOW_GRAPHIC_RUNTIME = { connections = connections, threads = threads }
+	LG.IsAlive = function()
+		return ENV.__AUTORANK_LOW_GRAPHIC_RUNTIME
+			and ENV.__AUTORANK_LOW_GRAPHIC_RUNTIME.connections == connections
+	end
+	LG.Connect = function(signal, callback)
+		local connection = signal:Connect(callback)
+		connections[#connections + 1] = connection
+		return connection
+	end
+	LG.Spawn = function(callback, ...)
+		local thread = task.spawn(callback, ...)
+		threads[#threads + 1] = thread
+		return thread
+	end
+	LG.Delay = function(seconds, callback, ...)
+		local thread = task.delay(seconds, callback, ...)
+		threads[#threads + 1] = thread
+		return thread
+	end
+
+	local function req(path)
+		local node = L
+		for name in tostring(path):gmatch("[^%.]+") do
+			node = node and node:FindFirstChild(name)
+			if not node then return nil end
+		end
+		for _ = 1, 3 do
+			local ok, result = pcall(require, node)
+			if ok and result ~= nil then return result end
+			task.wait(.3)
+		end
+	end
+
+	local function gfn(name)
+		local value
+		if getgenv then local ok, env = pcall(getgenv); if ok and env then value = env[name] end end
+		if type(value) ~= "function" and _G then value = _G[name] end
+		return type(value) == "function" and value or nil
+	end
+
+	local setIdentity = gfn("setthreadidentity") or gfn("setidentity") or gfn("set_thread_identity") or gfn("setthreadcontext")
+	local function withIdentity(callback)
+		if not setIdentity then return pcall(callback) end
+		for _, identity in ipairs({ 3, 8, 7, 6, 5, 2 }) do
+			local ok = pcall(function()
+				setIdentity(identity)
+				callback()
+				setIdentity(2)
+			end)
+			if ok then return true end
+		end
+		pcall(setIdentity, 2)
+		return false
+	end
+
+	local K = {}
+	K.KIND = {
+		Part=1, MeshPart=1, UnionOperation=1, TrussPart=1, WedgePart=1, CornerWedgePart=1,
+		Seat=1, VehicleSeat=1, SpawnLocation=1, NegateOperation=1, SpecialMesh=2, Decal=3,
+		Texture=3, ParticleEmitter=4, Trail=5, Beam=5, Smoke=5, Fire=5, Sparkles=5,
+		Highlight=5, PointLight=5, SpotLight=5, SurfaceLight=5, BillboardGui=5, SurfaceGui=5,
+		Sound=6, SoundGroup=6, ShirtGraphic=7, Shirt=8, Pants=8, Explosion=9, Model=10,
+		Folder=10, Animator=11, AnimationController=11, Humanoid=11, LocalScript=12, Script=12,
+	}
+	K.ANIM_SCRIPT = {
+		["Pet Animation"] = true, Animate = true, AnimateV2 = true, Swimming = true,
+		RbxCharacterSounds = true, Animation = true, ["Idle Animation"] = true, ["Machine Anim"] = true,
+	}
+	K.TRANSIENT = {
+		BillboardGui=true, SurfaceGui=true, ParticleEmitter=true, Trail=true, Beam=true,
+		Smoke=true, Fire=true, Sparkles=true, Explosion=true, Highlight=true,
+		PointLight=true, SpotLight=true, SurfaceLight=true,
+	}
+	K.COSMETIC = { "Pets", "RenderedEggs", "CustomEggs", "Effects", "__DEBRIS" }
+	K.KEEP_COSMETIC = { Highlight=true, host=true }
+	K.KEEP_FX = { Pads=true, PadPress=true, Transition=true }
+	K.UNBIND_FX = {
+		-- TowerDefense/Projectile/PadPress are Garden/PvCombat-specific and are omitted here.
+		"__CUSTOMPET_BULK", "FireworkCannon", "Slingshot", "SnowballLauncher", "WaterGun",
+		"ItemUI_SharedPetAnimations", "PetUIAnimation", "CardUIAnimation", "HoverboardUIAnimation",
+		"fruitUIAnimation", "FruitsMachineUpgradeSelector", "BlockWorldClient", "BlockWorldClient_Mouse",
+		"GenericInput", "ScreenResolution", "InterfaceScaling",
+	}
+	-- These handlers consume server event data after AutoWorldRank invokes a spawn remote.
+	-- Keep their logic; the RandomEvents folder is still hidden separately below.
+	K.KEEP_SCRIPT = {
+		"Idle Tracking", "SoftShutdown", "GUIs.Rebirth", "Game.Rebirth Shrine",
+		-- Fiesta cần: cổng instance, raid, portal, pinata
+		"Instance Gates", "Instance Quests", "Fiesta", "Pinata", "Raid", "Portals",
+		"Scripts.Game.Random Events",
+	}
+	K.KILL_SCRIPT = {
+		"GUI", "GUIs", "VFX", "Animation", "Animations", "Notification", "Notifications", "Physical Eggs",
+		"Egg Promo", "Infinity Egg", "Hoverboard", "Leaderboard", "Leaderboards", "MiniMap", "World Animations",
+		"Machine Anim", "Balloon Gifts", "Firework", "Cannon", "Slingshot", "Snowball", "Water Gun",
+		"Ultimates", "Wings HUD", "Mailbox", "Teleport Map", "Trade Notification", "Auto Tapper", "Admin Toolbar",
+		"Exclusive Shop", "Spawn Leaderboards", "Auction Billboard", "Purchasable Booths",
+		"Hacker Breach", "Hacker Breaches", "AdminShows", "PetVisuals", "AAVisual", "Player Statues", "Auto Farm",
+		"Auto Hatch", "Bottom Buttons", "DribbleTuner", "Hide Important UI", "Join Event Sidebar", "Keybinds UI",
+		"Leveling XP Bar", "FarmGifting", "CustomEggs Frontend", "Retention Gifts", "Mini Leaderboards",
+		"Robux Card", "Trading Plaza", "Water Detector", "Race Rewards",
+		"League Leaderboards", "Card Flashing", "RbxCharacterSounds", "Swimming", "Animate", 		"Render Players Manager", "Chest Raid Door", "Roaming Pets", "Consumable VFX", "Island Portals", "MapVFX",
+		"Lighting Manager", "Music", "Hotbar", "Proximity", "Upgrades Frontend", "EventUpgrades Frontend",
+		"EventBoardManager", "Player Walkspeed", "Castle Door", "Shop Egg", "Tower Tycoon", "Tower AFK",
+		"Farm Egg Management", "Farm Pet Management", "FarmingEggMerchant", "Vending Machines", "Daily Quests Machine",
+		"Enchant Essence Machine", "Crystal Chest", "Tech Chest", "Void Chest", "Hacker Chest", "MVP Chest",
+		"Fantasy Chest", "Time Trial Chests", "Summer Boss Chest", "ClientMagicOrbs", "Prison", "Tech Rocket",
+		"Angelus Portal", "Favorite Prompt", "Knock Knock", "Fantasy Transition", "Forever Pack", "UFO Invasion",
+		"TNT", "Egg Opening Frontend", "Misc.Water", "Fruits Machine",
+		-- Names verified in scripts.json for the Garden event client.
+		"GardenBoosts", "Garden Regrow Machine", "Garden Upgrade Machine", "Garden Fuse Machine",
+		"Garden Chance Machine", "Garden Combine Machine", "Hotbar (Garden Defenders)", "Parallel Pet Actors",
+		"Garden Tutorial", "GardenHUD", "Garden Match Stats", "GardenChanceMachineCmds", "CropSpin", "CropVariantFX",
+		"AutoHarvest", "AutoUpgrade", "ChaseOddsPets", "UnitHolding", "LaneUnlock", "ClaimPad", "PadPress",
+	}
+	-- Script/VFX của EVENT Pinata Fiesta: dump scripts.json là bản TRƯỚC event nên
+	-- không có tên nào ở đây; khớp theo từ khoá cho chắc.
+	K.EVENT_JUNK = {
+		"Pinata VFX", "Pinata Anim", "Pinata Effects", "Fiesta VFX", "Fiesta Anim",
+		"Fiesta HUD", "FiestaHUD", "Fiesta Frontend", "Maze VFX", "Maze HUD",
+		"Damage Popup", "Damage Numbers", "Damage Indicator", "Hit Effect",
+		"Confetti", "Firework", "Sparkle", "Screen Shake", "Camera Shake",
+	}
+	K.HARD_KILL_SCRIPT = {
+		"Hotbar (Garden Defenders)", "Breakable VFX", "Consumable VFX", "Admin Abuse Effects", "Admin Chest Billboard",
+		"Huge Event Billboard", "Machine Billboards", "Happy Pets VFX", "Garden Regrow Machine",
+		"Damage Statistics Manager", "CustomEggs Frontend",
+	}
+	-- Do not cancel sources used by AutoWorldRank itself: Save, Network, Orb, PlayerPet and breakable routing.
+	K.GC_KILL_SOURCE = {
+		"Functions.DistanceRenderStepped", "Functions.AddDebris", "Client.PetDisplay", "Happy Pets VFX",
+		"Machine Anim", "Client.XPBallCmds", "Client.CustomCard",
+		"Client.LootboxCmds", "Client.BoatCmds", "Client.BoardCmds", "Client.InterfaceScaling", "Client.AutoUIScaling",
+		"Client.UI.LootUI", "Client.UI.ActionMenu", "Client.NotificationCmds", "Client.ConsoleCmds", "GUIFX.ButtonFX",
+		"GUIFX.InteractSound", "Join Event Sidebar", "Auto Hatch", "Client.EventFishingCmds", "Client.LootableCmds",
+		"Client.ToolCmds", "Client.OrnamentCmds", "ReplicatedFirst.Blunder", "CustomEggs Frontend",
+		"Breakable VFX (Enchants, etc.)", "Consumable VFX", "Admin Abuse Effects", "Admin Chest Billboard",
+		"Huge Event Billboard", "Damage Statistics Manager", "Modules.Performance",
+		-- High-frequency producers verified in scripts.json. Rank data modules are excluded below.
+		"Exclusive Shop", "Egg Opening Frontend", "Tech Rocket", "Forever Pack", "Roaming Pets", "Angelus Portal",
+		"Summer Boss Chest", "Scripts.GUIs.Ranks", "Physical Eggs Frontend", "Card Flashing",
+		"Castle Door", "Firework Cannon", "World Animations", "Upgrade Enchants Anim", "Upgrade Potions Anim", "Music",
+		"Teleport (Cannon)", "AdminShows", "Rebirth VFX", "Water Gun", "Retention Gifts", "Raffle Boards", "Auto Tapper",
+		"Ultimates HUD", "Hoverboard Manager", "MiniMap", "Balloon Gifts", "Notification Prompt", "Fantasy Transition",
+		"ClientMagicOrbs", "Farm Pet Management", "Parallel Pet Controller", "PetVisuals", "GardenBoosts",
+	}
+	K.GC_KEEP_SOURCE = {
+		"Client.Network", "Client.Save", "OrbCmds", "Client.PlayerPet", "Client.PetNetworking", "BreakableFrontend",
+		"EggCmds", "ZoneCmds", "RankCmds", "QuestCmds", "RebirthCmds", "Client.MachineCmds", "Idle Tracking", "SoftShutdownLocal",
+		"Client.RandomEventCmds", "Random Events",
+		"AutoWorldRank", "autorank_LowGraphics", "AutoRankLowGraphics",
+		-- event Fiesta: giữ nguyên mọi thứ liên quan instance/raid/pinata
+		"Fiesta", "Pinata", "InstancingCmds", "Instance Gates", "RaidCmds", "EventUpgradeCmds",
+	}
+	-- Kill_Event_FX: "Fiesta"/"Pinata" ở trên là lưới quá rộng -> nó che luôn mấy
+	-- module UI/FX của event. Bật cờ này thì đổi sang giữ ĐÍCH DANH thứ mình gọi
+	-- (portal, maze, instance, raid, upgrade) và cho phép giết phần UI/FX.
+	if FC.KILL_EVENT_FX then
+		for i = #K.GC_KEEP_SOURCE, 1, -1 do
+			local v = K.GC_KEEP_SOURCE[i]
+			-- bỏ cả "Random Events" vì nó che "Random Events.Pinata" (FX đu pinata)
+			if v == "Fiesta" or v == "Pinata" or v == "Random Events" then table.remove(K.GC_KEEP_SOURCE, i) end
+		end
+		for _, v in ipairs({
+			"FiestaMazePortals", "FiestaMazeCmds", "FiestaMazeGeometry", "Util.FiestaMaze",
+			"PinataChallengeCmds", "InstanceDamageModules", "ClientRaidInstance",
+		}) do K.GC_KEEP_SOURCE[#K.GC_KEEP_SOURCE + 1] = v end
+		for _, v in ipairs({
+			-- tên module có thật, lấy từ dump bản CÓ event (scripts-35417971.json)
+			"PinataBossBar", "PinataHangFX", "FiestaLevelBar", "FiestaLevelCmds",
+			"FiestaScoreCmds", "FiestaCredits", "Fiesta Race Rewards",
+			"Fiesta Upgrade Machine", "Random Events.Pinata",
+		}) do K.GC_KILL_SOURCE[#K.GC_KILL_SOURCE + 1] = v end
+	end
+	K.NULLOBJ = setmetatable({}, { __index=function() return K.NULLOBJ end, __call=function() return K.NULLOBJ end, __newindex=function() end })
+
+	local function stopAnims(instance)
+		local animator = instance:IsA("Animator") and instance or instance:FindFirstChildOfClass("Animator")
+		if animator then
+			for _, track in ipairs(animator:GetPlayingAnimationTracks()) do pcall(function() track:Stop(0) end) end
+		end
+	end
+	local function hideOne(instance)
+		local kind = K.KIND[instance.ClassName]
+		if kind == 1 then
+			instance.Transparency, instance.LocalTransparencyModifier, instance.CastShadow, instance.Reflectance = 1, 1, false, 0
+			pcall(function() instance.Material = Enum.Material.SmoothPlastic end)
+			if instance.ClassName == "MeshPart" then pcall(function() instance.TextureID = "" end) end
+		elseif kind == 2 then pcall(function() instance.TextureId = "" end)
+		elseif kind == 3 then instance.Texture, instance.Transparency = "", 1
+		elseif kind == 4 then instance.Enabled, instance.Lifetime = false, NumberRange.new(0)
+		elseif kind == 5 then instance.Enabled = false
+		elseif kind == 6 then instance.Volume = 0
+		elseif kind == 7 then instance.Graphic = ""
+		elseif kind == 8 then pcall(function() instance[instance.ClassName .. "Template"] = "" end)
+		elseif kind == 9 then instance.BlastPressure, instance.BlastRadius = 1, 1
+		elseif kind == 11 then pcall(stopAnims, instance)
+		elseif kind == 12 and K.ANIM_SCRIPT[instance.Name] then pcall(function() instance.Disabled = true end)
+		end
+	end
+	local function hideTree(root)
+		if not root then return end
+		pcall(hideOne, root)
+		local ok, descendants = pcall(function() return root:GetDescendants() end)
+		if ok then for _, instance in ipairs(descendants) do pcall(hideOne, instance) end end
+	end
+	-- PROXY BREAKABLE ------------------------------------------------------
+	-- Đọc BreakableFrontend.createModel: model tên = uid, PrimaryPart là part/mesh
+	-- chính, PrimaryPart có con "Hitbox" (part trong suốt + ClickDetector).
+	-- Mọi chỗ khác của game chỉ dùng model.PrimaryPart / :FindFirstChild("Hitbox")
+	-- (đều có guard), nên xoá phần còn lại là an toàn.
+	-- Ta đánh bằng remote Breakables_PlayerDealDamage -> không cần ClickDetector,
+	-- không cần thấy hình. Bỏ CanQuery còn cắt luôn mouse.Target của
+	-- startGlowAnimationTask (vòng chạy mỗi frame trên PC).
+	local proxied = setmetatable({}, { __mode = "k" })
+	local function proxyBreakable(model)
+		if not (model and model:IsA("Model")) or proxied[model] then return end
+		local primary = model.PrimaryPart
+		if not primary then return end            -- chưa dựng xong, lần ChildAdded sau
+		proxied[model] = true
+		for _, child in ipairs(model:GetChildren()) do
+			if child ~= primary then pcall(child.Destroy, child) end
+		end
+		for _, child in ipairs(primary:GetChildren()) do
+			if child.Name ~= "Hitbox" then pcall(child.Destroy, child) end
+		end
+		pcall(function()
+			local hitbox = primary:FindFirstChild("Hitbox")
+			if hitbox then hitbox.CanQuery, hitbox.CanTouch, hitbox.CanCollide = false, false, false end
+			primary.Transparency = 1
+			primary.CastShadow = false
+			primary.CanCollide, primary.CanTouch, primary.CanQuery = false, false, false
+			primary.Reflectance = 0
+			primary.Material = Enum.Material.Plastic
+		end)
+	end
+	-- DỌN __DEBRIS ---------------------------------------------------------
+	-- __DEBRIS chứa 2 loại: part "host" (particleHost của từng breakable, game tự
+	-- Debris:AddItem khi breakable vỡ) và template phòng mê cung mà
+	-- FiestaMazeGeometry đi tìm bằng tên -> GIỮ. Còn lại là VFX chết: xoá thẳng,
+	-- không chỉ ẩn, để RAM không phình.
+	local DEBRIS_KEEP = {
+		host = true, RoomTemplateA = true, RoomTemplateB = true, RoomTemplateC = true,
+		RoomTemplateD = true, RoomTemplate = true, SpawnRoomTemplate = true,
+		EndRoomTemplate = true, AdoboWall = true, CactusWall = true,
+		BorderTemplate = true, CheckerTileTemplate = true,
+	}
+	local function purgeDebris()
+		local debris = workspace:FindFirstChild("__DEBRIS")
+		if not debris then return end
+		local n = 0
+		for _, child in ipairs(debris:GetChildren()) do
+			if not DEBRIS_KEEP[child.Name] then
+				pcall(child.Destroy, child)
+				n = n + 1
+				if n % 200 == 0 then task.wait() end
+			end
+		end
+	end
+	local function keepCosmetic(name)
+		return K.KEEP_COSMETIC[name] or string.find(name, "HUDHost", 1, true) ~= nil
+	end
+	local function clearCosmetic()
+		local things = workspace:FindFirstChild("__THINGS")
+		for _, name in ipairs(K.COSMETIC) do
+			local folder = workspace:FindFirstChild(name) or (things and things:FindFirstChild(name))
+			if folder then
+				for _, child in ipairs(folder:GetChildren()) do if not keepCosmetic(child.Name) then hideTree(child) end end
+			end
+		end
+		if things then
+			for _, child in ipairs(things:GetChildren()) do
+				for _, name in ipairs({ "RenderedEggs", "Pets", "Effects", "CustomEggs" }) do
+					local folder = child:FindFirstChild(name)
+					if folder then for _, visual in ipairs(folder:GetChildren()) do if not keepCosmetic(visual.Name) then hideTree(visual) end end end
+				end
+			end
+		end
+	end
+	local function watchDebris()
+		local debris = workspace:FindFirstChild("__DEBRIS")
+		if not debris then return end
+		local watchedHosts = setmetatable({}, { __mode = "k" })
+		local function sweep(child)
+			if child.Name == "host" then
+				if not watchedHosts[child] then
+					watchedHosts[child] = true
+					LG.Connect(child.DescendantAdded, function(instance)
+						if instance.Name == "HUDAdornee" or instance:IsA("BillboardGui") then task.defer(hideTree, instance) end
+					end)
+				end
+				local hud = child:FindFirstChild("HUDAdornee", true)
+				if hud then hideTree(hud) end
+			elseif not keepCosmetic(child.Name) then
+				hideTree(child)
+			end
+		end
+		for _, child in ipairs(debris:GetChildren()) do sweep(child) end
+		LG.Connect(debris.ChildAdded, sweep)
+	end
+
+	local function stripGuiTextures(gui)
+		for _, instance in ipairs(gui:GetDescendants()) do pcall(function()
+			if K.TRANSIENT[instance.ClassName] then hideOne(instance)
+			elseif instance:IsA("LocalScript") then instance.Disabled = true
+			elseif instance:IsA("ImageLabel") or instance:IsA("ImageButton") then instance.Image, instance.HoverImage, instance.PressedImage = "", "", ""
+			elseif instance:IsA("Decal") or instance:IsA("Texture") then instance.Texture = ""
+			elseif instance:IsA("ViewportFrame") then instance.Visible = false end
+		end) end
+	end
+	local function isKeptGui(gui)
+		return gui.Name == "Fiesta_HUD" or gui.Name == "AutoWorldRank_HUD"
+			or gui.Name == "Transition" or gui.Name == "PvC_HUD"
+			or gui.Name == "Rebirth" or gui.Name == "RebirthDetails" or gui.Name == "Rank"
+	end
+	local function stripPlayerGui()
+		local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if not playerGui then return end
+		local cleaned = setmetatable({}, { __mode = "k" })
+		local function clean(gui)
+			if cleaned[gui] or isKeptGui(gui) or not gui:IsA("LayerCollector") then return end
+			cleaned[gui] = true
+			pcall(function() gui.Enabled = false end)
+			stripGuiTextures(gui)
+			local enabledConnection = LG.Connect(gui:GetPropertyChangedSignal("Enabled"), function() if gui.Enabled then gui.Enabled = false end end)
+			LG.Connect(gui.AncestryChanged, function()
+				if not gui:IsDescendantOf(game) then pcall(function() enabledConnection:Disconnect() end) end
+			end)
+		end
+		for _, gui in ipairs(playerGui:GetChildren()) do clean(gui) end
+		LG.Connect(playerGui.ChildAdded, function(gui) task.defer(clean, gui) end)
+		LG.Connect(playerGui.DescendantAdded, function(instance)
+			local parentGui = instance:FindFirstAncestorWhichIsA("LayerCollector")
+			if not parentGui or isKeptGui(parentGui) then return end
+			if instance:IsA("LocalScript") then pcall(function() instance.Disabled = true end)
+			elseif instance:IsA("ViewportFrame") then pcall(function() instance.Visible = false end) end
+		end)
+		local starter = game:GetService("StarterGui")
+		pcall(starter.SetCoreGuiEnabled, starter, Enum.CoreGuiType.All, false)
+		pcall(function() starter:SetCore("TopbarEnabled", false) end)
+	end
+	local function stripPlayers()
+		local function remove(character) if character and character.Parent then pcall(function() character:Destroy() end) end end
+		local function watch(player)
+			if player == LocalPlayer then return end
+			remove(player.Character)
+			LG.Connect(player.CharacterAdded, function(character) task.defer(remove, character) end)
+		end
+		for _, player in ipairs(Players:GetPlayers()) do watch(player) end
+		LG.Connect(Players.PlayerAdded, watch)
+	end
+
+	local function killGcWorkers()
+		if LG.SAFE_MODE >= 1 then return 0 end
+		local getGc = gfn("getgc")
+		if not getGc then return 0 end
+		local ok, objects = pcall(getGc, true)
+		if not ok or type(objects) ~= "table" then return 0 end
+		local killed = 0
+		for _, object in pairs(objects) do
+			if type(object) == "thread" then
+				local okSource, source = pcall(function() return debug.info(object, 1, "s") end)
+				if okSource and type(source) == "string" then
+					local keep = false
+					for _, safe in ipairs(K.GC_KEEP_SOURCE) do if string.find(source, safe, 1, true) then keep = true break end end
+					local kill = false
+					if not keep then for _, wanted in ipairs(K.GC_KILL_SOURCE) do if string.find(source, wanted, 1, true) then kill = true break end end end
+					if kill and pcall(task.cancel, object) then killed = killed + 1 end
+				end
+			end
+		end
+		return killed
+	end
+	local function killRenderConnections()
+		if LG.SAFE_MODE >= 1 then return 0 end
+		local getConnections = gfn("getconnections")
+		if not getConnections then return 0 end
+		local run = game:GetService("RunService")
+		local killed = 0
+		for _, signal in ipairs({ run.RenderStepped, run.Heartbeat, run.Stepped, run.PreSimulation, run.PostSimulation, run.PreRender }) do
+			local ok, list = pcall(getConnections, signal)
+			if ok and type(list) == "table" then
+				for _, connection in ipairs(list) do
+					local okSource, source = pcall(function() return debug.info(connection.Function, "s") end)
+					if okSource and type(source) == "string" then
+						local keep = false
+						for _, safe in ipairs(K.GC_KEEP_SOURCE) do if string.find(source, safe, 1, true) then keep = true break end end
+						if not keep then
+							for _, wanted in ipairs(K.GC_KILL_SOURCE) do
+								if string.find(source, wanted, 1, true) then
+									local done = pcall(function() connection:Disable() end)
+									if not done then done = pcall(function() connection:Disconnect() end) end
+									if done then killed = killed + 1 end
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		return killed
+	end
+
+	local function disableGardenRuntime()
+		local things = workspace:FindFirstChild("__THINGS")
+		local container = things and things:FindFirstChild("__INSTANCE_CONTAINER")
+		local active = container and container:FindFirstChild("Active")
+		local garden = active and active:FindFirstChild("Garden")
+		local function disableScripts(root)
+			if not root then return end
+			for _, object in ipairs(root:GetDescendants()) do
+				if object:IsA("LocalScript") or object:IsA("Script") then pcall(function() object.Disabled = true end) end
+			end
+		end
+		disableScripts(garden)
+		local plots = things and things:FindFirstChild("Plots")
+		if plots then
+			for _, plot in ipairs(plots:GetChildren()) do disableScripts(plot:FindFirstChild("Interactable") and plot.Interactable:FindFirstChild("GardenQuests")) end
+		end
+	end
+
+	-- Tắt hẳn nguồn sinh việc phía client: script VFX/HUD của event, khâu dựng
+	-- model-animation của pet, và handler của mấy remote bắn liên tục.
+	-- Ta gọi remote trực tiếp nên mất mấy frontend này không ảnh hưởng gameplay.
+	local function killEventJunk()
+		local function match(full)
+			for _, w in ipairs(K.EVENT_JUNK) do
+				if string.find(full, w, 1, true) then return true end
+			end
+			return false
+		end
+		local function sweep(root)
+			if not root then return end
+			for _, o in ipairs(root:GetDescendants()) do
+				if (o:IsA("LocalScript") or o:IsA("Script")) and not o.Disabled and match(o:GetFullName()) then
+					pcall(function() o.Disabled = true end)
+				end
+			end
+		end
+		sweep(LocalPlayer:FindFirstChild("PlayerScripts"))
+		local things = workspace:FindFirstChild("__THINGS")
+		local container = things and things:FindFirstChild("__INSTANCE_CONTAINER")
+		sweep(container and container:FindFirstChild("Active"))
+		-- pet: server vẫn tính damage, client thôi dựng model/animation
+		local ps = LocalPlayer:FindFirstChild("PlayerScripts")
+		for _, name in ipairs({ "Parallel Pet Actors", "Parallel Pet Controller", "PetVisuals" }) do
+			local o = ps and ps:FindFirstChild(name, true)
+			if o then
+				for _, sc in ipairs(o:GetDescendants()) do
+					if sc:IsA("LocalScript") or sc:IsA("Script") then pcall(function() sc.Disabled = true end) end
+				end
+				if o:IsA("LocalScript") or o:IsA("Script") then pcall(function() o.Disabled = true end) end
+			end
+		end
+	end
+	-- Remote bắn dồn dập: ngắt LISTENER của game, mình vẫn gửi damage bình thường.
+	-- KHÔNG đụng remote quản lý vòng đời breakable (BreakableFrontend cần chúng để
+	-- biết cái nào đã vỡ -> targetsAlive dựa vào đó).
+	local function muteNoisyRemotes()
+		local getconn = gfn("getconnections")
+		if not getconn then return 0 end
+		local net = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
+			or game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+		if not net then return 0 end
+		local killed = 0
+		for _, name in ipairs({
+			"Breakables_UpdateHealth",      -- thanh máu + số damage bay
+			"Damage Statistics",            -- bảng thống kê damage
+			"Breakables_RenderWorld",       -- vẽ lại breakable trong tầm
+		}) do
+			local r = net:FindFirstChild(name, true)
+			if r then
+				for _, sig in ipairs({ "OnClientEvent", "ClientInvoke" }) do
+					local ok, list = pcall(getconn, r[sig])
+					if ok and type(list) == "table" then
+						for _, c in ipairs(list) do
+							local done = pcall(function() c:Disable() end)
+							if not done then done = pcall(function() c:Disconnect() end) end
+							if done then killed = killed + 1 end
+						end
+					end
+				end
+			end
+		end
+		return killed
+	end
+	local function killGameScripts()
+		local run = game:GetService("RunService")
+		if LG.SAFE_MODE < 3 then for _, name in ipairs(K.UNBIND_FX) do pcall(function() run:UnbindFromRenderStep(name) end) end end
+		if LG.SAFE_MODE < 3 then
+			local variables = req("Variables")
+			if variables then
+				variables.PotatoMode, variables.HideProgressUI, variables.HideGoalsUI, variables.DisableInfoOverlay = true, true, true, true
+				for _, name in ipairs({ "DisableBoostUI", "DisableUltimateUI", "DisableNotifications", "DisableAutomaticSideCurrency", "DisableCardOpening", "HideMainLeft" }) do
+					pcall(function() local lock = variables.Locks and variables.Locks[name]; if lock and lock.ObtainLock then lock:ObtainLock() end end)
+				end
+			end
+		end
+		if LG.SAFE_MODE < 3 then
+			local audio = req("Audio")
+			if audio then for _, key in ipairs({ "Play", "PlaySound", "PlaySFX", "PlayError", "PlayStatement", "PlayQuestion", "PlayLocked", "Huh", "Fade", "PlayMusic", "StopMusic", "CreateSound" }) do if type(audio[key]) == "function" then audio[key] = function() return K.NULLOBJ end end end end
+		end
+		pcall(disableGardenRuntime)
+		pcall(function()
+			if LG.SAFE_MODE >= 2 then return end
+			local actors = LocalPlayer:FindFirstChild("PlayerScripts") and LocalPlayer.PlayerScripts:FindFirstChild("Parallel Pet Actors")
+			if not actors then return end
+			local disable = function(root) for _, script in ipairs(root:GetDescendants()) do if script:IsA("LocalScript") or script:IsA("Script") then pcall(function() script.Disabled = true end) end end end
+			for _, actor in ipairs(actors:GetChildren()) do disable(actor) end
+			LG.Connect(actors.ChildAdded, function(actor) task.defer(disable, actor) end)
+		end)
+		local function killScript(object)
+			if not object:IsA("LocalScript") then return end
+			local fullName, hard = object:GetFullName(), false
+			for _, word in ipairs(K.HARD_KILL_SCRIPT) do if string.find(fullName, word, 1, true) then hard = true break end end
+			if hard then pcall(function() object.Disabled = true; object:Destroy() end); return end
+			if object.Disabled then return end
+			for _, word in ipairs(K.KEEP_SCRIPT) do if string.find(fullName, word, 1, true) then return end end
+			for _, word in ipairs(K.KILL_SCRIPT) do if string.find(fullName, word, 1, true) then pcall(function() object.Disabled = true end); return end end
+		end
+		local function watchRoot(root)
+			if not root then return end
+			for _, object in ipairs(root:GetDescendants()) do killScript(object) end
+			LG.Connect(root.DescendantAdded, function(object) task.defer(killScript, object) end)
+		end
+		if LG.SAFE_MODE < 2 then
+			watchRoot(LocalPlayer:FindFirstChild("PlayerScripts"))
+			watchRoot(LocalPlayer:FindFirstChildOfClass("PlayerGui"))
+			watchRoot(LocalPlayer.Character)
+			LG.Connect(LocalPlayer.CharacterAdded, function(character) task.defer(watchRoot, character) end)
+		end
+		local gcKilled, connectionKilled = killGcWorkers(), killRenderConnections()
+
+		pcall(function() local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid"); if humanoid then humanoid.AutoRotate = false end end)
+	end
+
+	-- Đi theo TỪNG NHÁNH con, nghỉ giữa chừng. workspace của PS99 có hàng trăm
+	-- nghìn instance: GetDescendants() một phát tạo bảng khổng lồ -> đt tràn RAM chết.
+	local breakableWatched = setmetatable({}, { __mode = "k" })
+	local function deepHide(root, budget)
+		if not root then return end
+		pcall(hideOne, root)
+		local okKids, kids = pcall(function() return root:GetChildren() end)
+		if not okKids then return end
+		budget = budget or 0
+		for _, child in ipairs(kids) do
+			local ok, descendants = pcall(function() return child:GetDescendants() end)
+			if ok then
+				if #descendants > 6000 then                 -- nhánh quá to -> chia nhỏ tiếp
+					deepHide(child, budget)
+				else
+					pcall(hideOne, child)
+					for _, instance in ipairs(descendants) do
+						if K.KIND[instance.ClassName] then pcall(hideOne, instance) end
+						budget = budget + 1
+						if budget % 300 == 0 then task.wait() end
+					end
+				end
+			end
+			task.wait()                                     -- nhường frame giữa mỗi nhánh
+		end
+	end
+
+	local applied = false
+	local function applyLowGraphics()
+		local level = requestedLevel()
+		if level <= 0 or applied then return end
+		applied = true
+		pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
+		pcall(function() UserSettings():GetService("UserGameSettings").MasterVolume = 0 end)
+		pcall(function() game:GetService("SoundService").AmbientReverb = Enum.ReverbType.NoReverb end)
+		pcall(function()
+			local terrain = workspace:FindFirstChildOfClass("Terrain")
+			if terrain then
+				terrain.WaterReflectance, terrain.WaterTransparency, terrain.WaterWaveSize, terrain.WaterWaveSpeed = 0, 1, 0, 0
+				local hidden = gfn("sethiddenproperty"); if hidden then pcall(hidden, terrain, "Decoration", false) end
+			end
+		end)
+		pcall(function() workspace.GlobalWind = Vector3.zero end)
+		pcall(function() withIdentity(function() settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Skip16; settings().Physics.AllowSleep = true end) end)
+		pcall(function() workspace.PhysicsSteppingMethod = Enum.PhysicsSteppingMethod.Adaptive; workspace.Retargeting = Enum.AnimatorRetargetingMode.Disabled end)
+		pcall(function() withIdentity(function() settings().Rendering.EagerBulkExecution = true end) end)
+		pcall(function() UserSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1 end)
+		-- Lighting: game có script "Lighting Manager" tự set lại theo zone/thời gian,
+		-- nên set 1 phát là lát sau hiện lại hết. Level 3 giết script đó, level 1-2
+		-- thì phải khoá: nghe Changed + ChildAdded rồi áp lại (có debounce).
+		local lightBusy = false
+		local function applyLighting()
+			local lighting = game:GetService("Lighting")
+			lighting.EnvironmentDiffuseScale, lighting.EnvironmentSpecularScale, lighting.ClockTime = 0, 0, 12
+			lighting.GlobalShadows, lighting.FogEnd, lighting.FogStart, lighting.Brightness = false, 0, 0, 0
+			lighting.OutdoorAmbient, lighting.Ambient = Color3.new(), Color3.new()
+			local hidden = gfn("sethiddenproperty"); if hidden then pcall(hidden, lighting, "Technology", 2) end
+			lighting:ClearAllChildren()
+		end
+		pcall(applyLighting)
+		pcall(function()
+			local lighting = game:GetService("Lighting")
+			local function reapply()
+				if lightBusy then return end
+				lightBusy = true
+				task.defer(function()
+					pcall(applyLighting)
+					task.wait(.5)                       -- chặn vòng lặp Changed do chính mình gây ra
+					lightBusy = false
+				end)
+			end
+			LG.Connect(lighting.Changed, reapply)
+			LG.Connect(lighting.ChildAdded, function(child) task.defer(function() pcall(child.Destroy, child) end) end)
+		end)
+		pcall(function() local terrain = workspace:FindFirstChildOfClass("Terrain"); if terrain then terrain.WaterColor = Color3.new(); terrain.MaterialColors = Enum.MaterialColors.Plain end end)
+		if level >= 2 then
+			LG.Spawn(function()
+				local things = workspace:WaitForChild("__THINGS", 60)
+				if not things then return end
+				local container = things:FindFirstChild("__INSTANCE_CONTAINER")
+				local active = container and container:WaitForChild("Active", 60)
+				if active then
+					for _, child in ipairs(active:GetChildren()) do hideTree(child) end
+					LG.Connect(active.ChildAdded, function(child) task.defer(hideTree, child) end)
+				end
+				-- Breakables: TRƯỚC ĐÂY do breakable-proxy lo, bỏ proxy đi thì không còn ai
+				-- ẩn -> thùng/rương stream vào là hiện lại. Chỉ ẩn hình (Transparency,
+				-- particle...), KHÔNG đụng model/PrimaryPart nên farm vẫn đọc đúng vị trí.
+				-- Breakable_Proxy = true thì xoá hẳn phần hình thay vì chỉ ẩn.
+				local strip = FC.BREAKABLE_PROXY and proxyBreakable or hideTree
+				local function watchBreakables()
+					local folder = things:FindFirstChild("Breakables")
+					if not folder or breakableWatched[folder] then return end
+					breakableWatched[folder] = true
+					for _, child in ipairs(folder:GetChildren()) do task.defer(strip, child) end
+					LG.Connect(folder.ChildAdded, function(child) task.defer(strip, child) end)
+				end
+				watchBreakables()
+				local watched = { CustomEggs=true, RenderedEggs=true, Pets=true, Effects=true, RandomEvents=true, Breakables=true }
+				local function watch(folder)
+					if folder.Name == "Breakables" or not watched[folder.Name] then return end
+					LG.Connect(folder.ChildAdded, function(child) task.defer(hideTree, child) end)
+				end
+				for _, child in ipairs(things:GetChildren()) do if watched[child.Name] then hideTree(child); watch(child) end end
+				LG.Connect(things.ChildAdded, function(child)
+					if child.Name == "Breakables" then task.defer(watchBreakables) return end
+					if watched[child.Name] then task.defer(function() hideTree(child); if child.Parent then watch(child) end end) end
+				end)
+			end)
+			LG.Delay(5, function() pcall(stripPlayerGui) end)
+			pcall(watchDebris)
+			if FC.DEBRIS_PURGE ~= false then
+				LG.Spawn(function()
+					while LG.IsAlive() do
+						task.wait(tonumber(FC.DEBRIS_EVERY) or 30)
+						pcall(purgeDebris)
+					end
+				end)
+			end
+			pcall(clearCosmetic)
+			pcall(disableGardenRuntime)
+		end
+		if level >= 3 then
+			LG.Delay(6, function()
+				if not LG.IsAlive() then return end
+				pcall(killGameScripts)
+				pcall(killEventJunk)
+				if FC.MUTE_REMOTES ~= false then pcall(muteNoisyRemotes) end
+				pcall(stripPlayers)
+				-- script/VFX của event stream vào sau -> quét lại định kỳ
+				LG.Spawn(function()
+					while LG.IsAlive() do
+						task.wait(tonumber(FC.JUNK_EVERY) or 20)
+						pcall(killEventJunk)
+					end
+				end)
+				LG.Spawn(deepHide, workspace)
+				local seen, count = {}, 0
+				LG.Connect(workspace.ChildAdded, function(child)
+					if seen[child.Name] then return end
+					count = count + 1
+					if count >= 400 then seen, count = {}, 0 end
+					seen[child.Name] = true
+					task.defer(hideTree, child)
+				end)
+				LG.Spawn(function()
+					local getnil = gfn("getnilinstances")
+					if not getnil then return end
+					local ok, list = pcall(getnil)
+					if not ok or type(list) ~= "table" then return end
+					local countNil = 0
+					for _, instance in ipairs(list) do
+						if countNil > 20000 then break end       -- chặn trần, đt không gánh nổi
+						pcall(hideOne, instance)
+						local okDesc, descendants = pcall(function() return instance:GetDescendants() end)
+						if okDesc and #descendants < 4000 then
+							for _, child in ipairs(descendants) do
+								if K.KIND[child.ClassName] then pcall(hideOne, child) end
+								countNil = countNil + 1
+								if countNil % 300 == 0 then task.wait() end
+							end
+						end
+						countNil = countNil + 1
+					end
+				end)
+				pcall(function()
+					local camera = workspace.CurrentCamera
+					if camera then camera.CameraType = Enum.CameraType.Scriptable; camera.CameraSubject = nil; camera.FieldOfView = 1 end
+				end)
+			end)
+		end
+	end
+
+	-- Disable3D chạy độc lập với LEVEL: tắt hẳn khâu vẽ 3D của Roblox, GUI vẫn hiện.
+	-- Set3dRenderingEnabled cần identity cao nên phải bọc withIdentity.
+	if FC.DISABLE_3D then
+		LG.Spawn(function()
+			local run = game:GetService("RunService")
+			for _ = 1, 10 do
+				local ok = withIdentity(function() run:Set3dRenderingEnabled(false) end)
+				local off = select(2, pcall(function() return run:Get3dRenderingEnabled() end)) == false
+				if ok and off then  return end
+				task.wait(1)
+			end
+
+		end)
+	end
+
+	if L and requestedLevel() > 0 then          -- 0 = tắt hẳn, khỏi spawn gì
+		LG.Spawn(function()
+			task.wait(2)
+			if LG.IsAlive() then pcall(applyLowGraphics) end
+		end)
+	end
+	ENV.AutoRankLowGraphicsApply = applyLowGraphics
+
+end
+
+ENV.__FIESTA_RUN = (ENV.__FIESTA_RUN or 0) + 1
+local RUN = ENV.__FIESTA_RUN
+local alive = function() return ENV.__FIESTA_RUN == RUN end
+
+local CS = game:GetService("CollectionService")
+local LP = game:GetService("Players").LocalPlayer
+local L = game:GetService("ReplicatedStorage"):WaitForChild("Library", 30)
+local function req(p)
+	local n = L
+	for w in p:gmatch("[^%.]+") do n = n and n:FindFirstChild(w) end
+	local ok, m = pcall(require, n)
+	return ok and m or nil
+end
+local Net         = req("Client.Network")
+local Instancing  = req("Client.InstancingCmds")
+local EventUpg    = req("Client.EventUpgradeCmds")
+local EventUpgDir = req("Directory.EventUpgrades")
+local FFlags      = req("Client.FFlags")
+local Currency    = req("Client.CurrencyCmds")
+local PlayerPet   = req("Client.PlayerPet")
+local Breakable   = req("Client.BreakableFrontend")
+local PetTypes    = req("Types.Pets")
+local RaidCmds    = req("Client.RaidCmds")
+local ClientRaid  = req("Client.RaidCmds.ClientRaidInstance")
+local Raids       = req("Types.Raids")
+local FiestaRaidLevel = req("Util.FiestaRaidLevel")
+local Signal      = req("Signal")
+local Portals     = req("Client.FiestaMazePortals")
+local FiestaMazeCmds = req("Client.FiestaMazeCmds")
+local PinataCmds  = req("Client.PinataChallengeCmds")
+local FiestaScoreCmds = req("Client.FiestaScoreCmds")
+local MapCmds     = req("Client.MapCmds")
+local Mastery     = req("Client.MasteryCmds")
+local BuffCmds    = req("Client.BuffCmds")
+local PotionCmds  = req("Client.PotionCmds")
+local FlagCmds    = req("Client.FlexibleFlagCmds")
+local EnchantCmds = req("Client.EnchantCmds")
+local PetItem     = req("Items.PetItem")
+local Items       = req("Items")
+local EggDir      = req("Directory.Eggs")
+local PetCmds     = req("Client.PetCmds")
+local PetNet      = req("Client.PetNetworking")
+local FruitCmds   = req("Client.FruitCmds")
+local FruitItem   = req("Items.FruitItem")
+local PotionItem  = req("Items.PotionItem")
+local MiscItem    = req("Items.MiscItem")
+local EnchantItem = req("Items.EnchantItem")
+local LootboxItem = req("Items.LootboxItem")
+local LootboxType = req("Types.Lootboxes")
+local TT_BREAK    = (PetTypes and PetTypes.TargetTypeId and PetTypes.TargetTypeId.Breakable) or 2
+if not (Net and Instancing) then return end
+
+-- Inventory cache shared by buffs, webhook and the embedded HUD.
+local INV, invDirty, invAt = {}, true, 0
+pcall(function() Net.Fired("Items: Update"):Connect(function() invDirty = true end) end)
+-- pcall trả (ok, v1, v2, ...). tonumber(select(2, pcall(f))) sẽ thành
+-- tonumber(v1, v2) -> "invalid argument #2 to 'tonumber' (base out of range)"
+-- khi hàm trả nhiều giá trị (vd GetPotionData trả tier, timeLeft). Luôn dùng num1.
+local function num1(fn, ...)
+	local ok, v = pcall(fn, ...)
+	return ok and tonumber(v) or nil
+end
+local function each(cls)
+	local t = os.clock()
+	if invDirty or t - invAt > 5 then table.clear(INV); invDirty, invAt = false, t end
+	local hit = INV[cls]
+	if hit then return hit end
+	local r = select(2, pcall(function() return cls and cls:All() end)) or {}
+	INV[cls] = r
+	return r
+end
+
+-- AutoWorldRank buffs: keep the configured highest usable tier active.
+-- Mỗi mục trong CFG.Enchant = 1 SLOT, kể cả trùng tên ({"Criticals","Criticals"}
+-- = 2 slot Criticals). Khai thiếu thì để trống slot, không tự lấp bừa.
+-- Bug cũ: gom list thành SET nên trùng tên bị nuốt, và mấy cây đang đeo trùng
+-- loại vẫn được giữ -> chiếm hết slot, tên phía sau (vd Super Lightning) hết chỗ.
+-- Mỗi mục trong CFG.Enchant = 1 SLOT (trùng tên = nhiều slot). Khai thiếu -> để
+-- trống. Với mỗi loại, luôn giữ đúng N cây TIER CAO NHẤT dùng được: đang đeo cây
+-- yếu hơn cây trong túi thì tháo ra thay, loại không có trong cfg thì tháo hẳn.
+local function runEnchant()
+	local list = CFG.Enchant
+	if type(list) ~= "table" or #list == 0 or not (EnchantCmds and EnchantItem and Mastery) then return end
+	local slots = num1(EnchantCmds.GetMaxEquippedEnchants) or 0
+	if slots <= 0 then return end
+
+	local want = {}                                   -- id -> cần mấy cây (cắt theo slot)
+	for k = 1, math.min(#list, slots) do
+		local id = tostring(list[k] or "")
+		if id ~= "" then want[id] = (want[id] or 0) + 1 end
+	end
+
+	-- EnchantCmds.Get(id) trả CẢ cây đang đeo -> chọn top-N tier cao nhất là ra
+	-- luôn tập đích, khỏi phân biệt đeo/chưa đeo.
+	local target = {}                                 -- uid -> true (bộ cần đeo)
+	for id, need in pairs(want) do
+		local pool = {}
+		for uid, item in pairs(select(2, pcall(EnchantCmds.Get, id)) or {}) do
+			local tier = num1(item.GetTier, item) or 0
+			local ok, can = pcall(Mastery.CanUseEnchant, tier)
+			if ok and can then pool[#pool + 1] = { uid = uid, tier = tier } end
+		end
+		table.sort(pool, function(a, b) return a.tier > b.tier end)
+		for k = 1, math.min(need, #pool) do target[pool[k].uid] = true end
+	end
+
+	-- tháo: không thuộc tập đích (sai loại, dư số lượng, hoặc tier thấp hơn)
+	local equipped = select(2, pcall(EnchantCmds.GetEquipped)) or {}
+	for slot, uid in pairs(equipped) do
+		if target[uid] then
+			target[uid] = nil                          -- đã đeo đúng cây rồi
+		else
+			pcall(EnchantCmds.Unequip, tonumber(slot) or slot)
+			task.wait(0.2)
+		end
+	end
+	-- đeo phần còn thiếu
+	for uid in pairs(target) do
+		pcall(EnchantCmds.Equip, uid)
+		task.wait(0.2)
+	end
+end
+
+local function pickPotion(id)
+	local best, bestTier
+	for _, item in pairs(each(PotionItem)) do
+		local iid = select(2, pcall(item.GetId, item))
+		local amount = num1(item.GetAmount, item) or 0
+		if tostring(iid) == tostring(id) and amount > 0 then
+			local tier = num1(item.GetTier, item) or 1
+			local ok = select(2, pcall(Mastery.CanUsePotion, tier))
+			if ok and (not bestTier or tier > bestTier) then best, bestTier = item, tier end
+		end
+	end
+	return best, bestTier
+end
+
+local function runPotion()
+	local list = CFG.Potion
+	if type(list) ~= "table" or #list == 0 then return end
+	if not (PotionCmds and PotionItem and Mastery) then return end
+	for _, name in ipairs(list) do
+		local id = tostring(name or "")
+		if id ~= "" then
+			-- item = chai tier CAO NHẤT dùng được; active = tier đang chạy
+			local item, tier = pickPotion(id)
+			local active = num1(PotionCmds.GetPotionData, id) or 0
+			if item and tier and (active <= 0 or tier > active) then
+				pcall(PotionCmds.Consume, select(2, pcall(item.GetUID, item)), 1)
+				invDirty = true
+				task.wait(0.3)
+			end
+		end
+	end
+end
+
+local zoneFlagDir
+-- Fruit: chỉ ăn Rainbow, và ăn ĐÚNG số hàng đợi còn nhận (GetMaxConsume) nên
+-- không bị server chặn vì tràn queue. Tắt: Fruit = false
+local function useFruit()
+	if CFG.Fruit == false then return end
+	if not (FruitCmds and FruitItem) then return end
+	for _, it in pairs(each(FruitItem)) do
+		if tostring(select(2, pcall(it.GetId, it))) == "Rainbow" then
+			local uid = select(2, pcall(it.GetUID, it))
+			local n = num1(FruitCmds.GetMaxConsume, uid) or 0
+			if n > 0 then
+				pcall(FruitCmds.Consume, uid, n)
+				invDirty = true
+			end
+			return
+		end
+	end
+end
+
+local function useFarmFlag()
+	if CFG.mode ~= "challenge" or select(2, pcall(Instancing.GetInstanceID)) ~= "FiestaLobby" then return end
+	local list = CFG.Flag
+	if list == true then
+		if not zoneFlagDir then
+			zoneFlagDir = {}
+			local dir = req("Directory.ZoneFlags")
+			if dir then for id in pairs(dir) do zoneFlagDir[#zoneFlagDir + 1] = id end end
+		end
+		list = zoneFlagDir
+	end
+	if type(list) ~= "table" or #list == 0 or not (FlagCmds and MiscItem) then return end
+	-- Khu đang đứng đã có cờ (bất kể loại nào) -> thôi, khỏi cắm chồng.
+	for _, name in ipairs(list) do
+		if select(2, pcall(FlagCmds.PlayerHasActiveFlag, tostring(name or ""))) then return end
+	end
+	for _, name in ipairs(list) do
+		local id = tostring(name or "")
+		local maxPlace = num1(FlagCmds.GetMaxPlaceAutomaticContext, id) or 0
+		if id ~= "" and maxPlace > 0 then
+			for _, item in pairs(each(MiscItem)) do
+				local iid = select(2, pcall(item.GetId, item))
+				if tostring(iid) == id then
+					local amount = num1(item.GetAmount, item) or 0
+					if amount > 0 then
+						-- CHỈ cắm 1 cây mỗi lượt
+						pcall(Net.Invoke, "FlexibleFlags_Consume", id, select(2, pcall(item.GetUID, item)), 1)
+						invDirty = true
+					end
+					return
+				end
+			end
+		end
+	end
+end
+
+local TOY_REMOTES = {
+	["Toy Ball"] = "ToyBall_Consume",
+	["Toy Bone"] = "ToyBone_Consume",
+	["Squeaky Toy"] = "SqueakyToy_Consume",
+}
+local function useToys()
+	if CFG.Toy == false or not (BuffCmds and MiscItem) then return end
+	for _, item in pairs(each(MiscItem)) do
+		local id = select(2, pcall(item.GetId, item))
+		local remote = id and TOY_REMOTES[id]
+		local timer = remote and (num1(BuffCmds.GetTimer, id) or 0) or 0
+		local amount = remote and (num1(item.GetAmount, item) or 0) or 0
+		if remote and timer <= 0 and amount > 0 then
+			pcall(Net.Invoke, remote, math.min(amount, 100))
+			task.wait(0.3)
+		end
+	end
+end
+
+-- Gold/Rainbow machines: remote-only, strongest eligible stacks first.
+-- The item methods are the same Can*Machine checks used by AutoWorldRank.
+local function petMethod(item, name, ...)
+	local fn = item and item[name]
+	if type(fn) ~= "function" then return nil end
+	local ok, value = pcall(fn, item, ...)
+	return ok and value or nil
+end
+
+-- Huge/Titanic/Gargantuan may arrive locked in the saved inventory. Keep only
+-- those three classes unlocked through the same remote used by Inventory.
+do
+	local lastUnlock = {}
+	local function unlockSpecialPets()
+		if not (PetItem and Net) then return end
+		local now = os.clock()
+		for _, item in pairs(each(PetItem)) do
+			local uid = petMethod(item, "GetUID")
+			local special = petMethod(item, "IsHuge") == true
+				or petMethod(item, "IsTitanic") == true
+				or petMethod(item, "IsGargantuan") == true
+			local locked = special and petMethod(item, "IsLocked") == true
+			if uid and locked and (not lastUnlock[uid] or now - lastUnlock[uid] >= 5) then
+				lastUnlock[uid] = now
+				local ok, result = pcall(Net.Invoke, "Locking_SetLocked", uid, false)
+				if (not ok or result == false) and PetCmds and type(PetCmds.UnlockByItem) == "function" then
+					pcall(PetCmds.UnlockByItem, item)
+				end
+				invDirty = true
+				task.wait(0.15)
+			elseif uid and not locked then
+				lastUnlock[uid] = nil
+			end
+		end
+	end
+	task.spawn(function()
+		while alive() do
+			pcall(unlockSpecialPets)
+			task.wait(2)
+		end
+	end)
+end
+
+local function petMachineReduction(perk)
+	if not Mastery then return 0 end
+	local ok, has = pcall(Mastery.HasPerk, "Pets", perk)
+	if not ok or not has then return 0 end
+	local powerOk, power = pcall(Mastery.GetPerkPower, "Pets", perk)
+	return powerOk and (tonumber(power) or 0) or 0
+end
+local fiestaPetIds
+local function getFiestaPetIds()
+	if fiestaPetIds then return fiestaPetIds end
+	fiestaPetIds = {}
+	for _, egg in pairs(EggDir or {}) do
+		if type(egg) == "table" and tostring(egg.currency) == "FiestaCoins" then
+			for _, drop in ipairs(egg.pets or {}) do
+				local id = type(drop) == "table" and drop[1] or drop
+				if id then fiestaPetIds[tostring(id)] = true end
+			end
+		end
+	end
+	return fiestaPetIds
+end
+local function petMachinePower(item)
+	return tonumber(petMethod(item, "CalculatePower")) or 0
+end
+-- Chừa pet đang equip. GetEquippedItems trả 1 item / 1 con đang đeo, cùng stack
+-- thì trùng UID -> đếm theo UID ra số con đang đeo của stack đó.
+local function equippedCount()
+	local out = {}
+	if not PetCmds then return out end
+	for _, it in pairs(select(2, pcall(PetCmds.GetEquippedItems)) or {}) do
+		local uid = petMethod(it, "GetUID")
+		if uid then out[uid] = (out[uid] or 0) + 1 end
+	end
+	return out
+end
+-- Game tính số lần craft bằng GetAmount() THÔ, nên không chắc equipped có nằm
+-- trong stack hay không. Chỉ trừ khi số con đang đeo NHỎ HƠN size stack (tức
+-- stack có chứa chúng); đeo >= size stack nghĩa là equipped tách riêng -> giữ
+-- nguyên amount, không thì craft bị chặn oan.
+local function usableAmount(amount, locked)
+	locked = tonumber(locked) or 0
+	if locked <= 0 or locked >= amount then return amount end
+	return amount - locked
+end
+local function hrp()
+	local c = LP.Character
+	return c and c:FindFirstChild("HumanoidRootPart")
+end
+-- Cờ "đang rời chỗ đi làm việc khác" (ra pad pinata / ra máy gold-rainbow):
+-- tapper + vòng tele phải đứng yên, không kéo về giữa chừng.
+local padBusy = false
+
+local function petMachinePass(rainbow)
+	if not (CFG.RAINBOW ~= false and PetItem and Net) then return false end
+	local locked = equippedCount()
+	local methodName = rainbow and "CanRainbowMachine" or "CanGoldMachine"
+	local remote = rainbow and "RainbowMachine_Activate" or "GoldMachine_Activate"
+	local need = math.max(1, 10 - petMachineReduction(rainbow and "RainbowReduction" or "GoldReduction"))
+	local eventIds = getFiestaPetIds()
+	local candidates = {}
+	for _, item in pairs(each(PetItem)) do
+		local id = tostring(petMethod(item, "GetId") or "")
+		local amount = tonumber(petMethod(item, "GetAmount")) or 0
+		local uid = petMethod(item, "GetUID")
+		local golden = petMethod(item, "IsGolden") == true
+		local rainbowPet = petMethod(item, "IsRainbow") == true
+		local normal = petMethod(item, "IsNormal")
+		local special = petMethod(item, "IsHuge") or petMethod(item, "IsTitanic") or petMethod(item, "IsGargantuan")
+		local exclusive = tonumber(petMethod(item, "GetExclusiveLevel")) or 0
+		local valid = rainbow and golden and not rainbowPet or (not rainbow and normal ~= false and not golden and not rainbowPet)
+		local can = petMethod(item, methodName)
+		local power = petMachinePower(item)
+		local free = usableAmount(amount, uid and locked[uid])
+		if eventIds[id] and uid and free >= need and power > 0 and valid and not special and exclusive <= 0
+			and can ~= false and type(item[methodName]) == "function" then
+			candidates[#candidates + 1] = { item = item, uid = uid, power = power }
+		end
+	end
+	table.sort(candidates, function(a, b)
+		if a.power == b.power then return tostring(a.uid) < tostring(b.uid) end
+		return a.power > b.power
+	end)
+	if #candidates == 0 then return false end
+	local sent = false
+	local strongest = candidates[1] and candidates[1].power
+	for _, candidate in ipairs(candidates) do
+		if candidate.power ~= strongest then break end
+		local amount = tonumber(petMethod(candidate.item, "GetAmount")) or 0
+		local free = usableAmount(amount, locked[candidate.uid])
+		local count = math.floor(free / need)
+		if count > 0 then
+			local ok, res = pcall(Net.Invoke, remote, candidate.uid, count)
+			if ok and res ~= false then
+				sent = true
+				invDirty = true
+				table.clear(INV)
+				task.wait(0.35)
+			end
+		end
+	end
+	return sent
+end
+local function runPetMachines()
+	if CFG.RAINBOW == false then return end
+	-- B1 thường -> vàng. Craft xong UID đổi nên phải đọc lại túi rồi mới sang B2.
+	if petMachinePass(false) then task.wait(1); invDirty = true; table.clear(INV) end
+	petMachinePass(true)              -- B2 vàng -> rainbow
+end
+
+local function countCachedLootbox(id)
+	if not LootboxItem then return 0 end
+	local total = 0
+	for _, item in pairs(each(LootboxItem)) do
+		local okId, itemId = pcall(function() return item:GetId() end)
+		if okId and tostring(itemId) == tostring(id) then
+			local amount = select(2, pcall(function() return item:GetAmount() end)) or 1
+			total = total + math.max(0, tonumber(amount) or 0)
+		end
+	end
+	return total
+end
+
+local function runLootbox()
+	local id = tostring(CFG.OPEN_LOOTBOX or "")
+	if id == "" or not (Signal and LootboxItem) then return end
+	local cap = (LootboxType and tonumber(LootboxType.MaxOpenAmount)) or 8
+	local have = countCachedLootbox(id)
+	if have <= cap then return end
+	local ok, result = pcall(function()
+		return Signal.Invoke("Lootbox_RequestOpen", id, cap)
+	end)
+	if ok and result then
+		invDirty = true
+		table.clear(INV)
+		task.wait(0.5)
+	end
+end
+
+local function rankBuffLoop()
+	task.spawn(function()
+		while alive() do
+			-- potion chạy ĐẦU TIÊN: runEnchant có nhiều task.wait(0.2), kẹt ở đó là
+			-- mấy hàm sau không tới lượt.
+			pcall(runPotion); pcall(runEnchant); pcall(useFarmFlag)
+			pcall(useFruit); pcall(useToys); pcall(runPetMachines); pcall(runLootbox)
+			task.wait(12)
+		end
+	end)
+end
+
+-- Luau chỉ cho 200 local/hàm. Nhóm webhook + mail + fps vào scope riêng,
+-- thân file chỉ giữ 3 tên gọi ra ngoài.
+local webhookLoop, mailLoop, fpsLoop
+do
+	--== WEBHOOK: báo drop theo config Notify (giống PvC) ==--
+	local HTTP = game:GetService("HttpService")
+	local function globalFn(name)
+		local f
+		if getgenv then local ok, g = pcall(getgenv) if ok and type(g) == "table" then f = g[name] end end
+		if type(f) ~= "function" and _G then f = _G[name] end
+		return type(f) == "function" and f or nil
+	end
+	local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request
+	if type(httpRequest) ~= "function" then httpRequest = globalFn("request") or globalFn("http_request") end
+	local function comma(n)
+		local str = string.format("%.0f", tonumber(n) or 0)
+		return str:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+	end
+	local function petRank(item)
+		for _, row in ipairs({
+			{ "Gargantuan", "IsGargantuan", "GARGANTUAN", 16711935 },
+			{ "Titanic", "IsTitanic", "TITANIC", 16766720 },
+			{ "Huge", "IsHuge", "HUGE", 49151 },
+		}) do
+			local ok, hit = pcall(item[row[2]], item)
+			if ok and hit then return row[1], row[3], row[4] end
+		end
+	end
+	local function pingText()
+		local id = tostring(CFG.Ping_ID or ""):gsub("%s", "")
+		if id == "" then return nil end
+		if id:find("<", 1, true) then return id end
+		if id:sub(1, 1) == "&" then return "<@&" .. id:sub(2) .. ">" end
+		return "<@" .. id .. ">"
+	end
+	-- Discord không đi theo redirect của roblox.com/asset-thumbnail -> phải hỏi API
+	-- thumbnails để lấy link tr.rbxcdn.com. Cache theo phiên.
+	local thumbCache = {}
+	local function iconUrl(icon)
+		local id = tostring(icon or ""):match("(%d+)")
+		if not id or id == "0" or type(httpRequest) ~= "function" then return nil end
+		if thumbCache[id] ~= nil then return thumbCache[id] or nil end
+		local ok, res = pcall(httpRequest, { Url = "https://thumbnails.roblox.com/v1/assets?assetIds=" .. id
+			.. "&returnPolicy=PlaceHolder&size=420x420&format=Png&isCircular=false", Method = "GET" })
+		local data
+		if ok and res then pcall(function() data = HTTP:JSONDecode(res.Body or res.body) end) end
+		local one = data and data.data and data.data[1]
+		thumbCache[id] = one and one.imageUrl or false
+		return one and one.imageUrl or nil
+	end
+	-- Hook thứ hai: CHỈ nhận Huge/Titanic/Gargantuan, cố tình để ngoài config.
+	local WEBHOOK_PUBLIC = "https://discord.com/api/webhooks/1533281424202010655/mNOKZ691xG_VPdu5rMdWcKH-2kUc5DGqzUWiiDbMSbRaarMKmWmk2_-bZ8qIxqLuQ89b"
+
+	-- NOTIFY: { Class, Id, Tier, Golden, Rainbow, Shiny } - field nil = không lọc.
+	-- Id = "All Huges" -> mọi Huge/Titanic/Gargantuan.
+	local VARIANT = { Golden = "IsGolden", Rainbow = "IsRainbow", Shiny = "IsShiny" }
+	local function itemFlag(it, field)
+		local ok, v = pcall(it[VARIANT[field]], it)
+		if not ok then return nil end
+		return v and true or false
+	end
+	local function wantMatch(want, it, id, tier)
+		local wid = want.Id
+		if wid ~= nil and wid ~= "" and wid ~= "All" then
+			if wid == "All Huges" then
+				local ok, huge = pcall(function() return it:IsHuge() or it:IsTitanic() or it:IsGargantuan() end)
+				if not (ok and huge) then return false end
+			elseif tostring(wid) ~= tostring(id) then return false end
+		end
+		if want.Tier ~= nil then
+			if type(want.Tier) == "table" then
+				local hit = false
+				for _, t in ipairs(want.Tier) do if tier == tonumber(t) then hit = true break end end
+				if not hit then return false end
+			elseif tier ~= tonumber(want.Tier) then return false end
+		end
+		for field in pairs(VARIANT) do
+			if want[field] ~= nil and itemFlag(it, field) ~= (want[field] and true or false) then return false end
+		end
+		return true
+	end
+	local function post(url, embed, ping)
+		if not url or url == "" or type(httpRequest) ~= "function" then return end
+		local body = { embeds = { embed } }
+		if ping then
+			body.content = ping
+			body.allowed_mentions = { parse = { "users", "roles" } }
+		end
+		task.spawn(function()
+			pcall(httpRequest, {
+				Url = url, Method = "POST", Headers = { ["Content-Type"] = "application/json" },
+				Body = HTTP:JSONEncode(body),
+			})
+		end)
+	end
+	-- rank ~= nil (Huge/Titanic/Gargantuan) mới PING và mới bắn qua hook public.
+	local function sendWebhook(item, amount, className)
+		local rank, rankName, color = petRank(item)
+		local label = select(2, pcall(item.GetName, item))
+		if type(label) ~= "string" or label == "" then label = tostring(select(2, pcall(item.GetId, item))) end
+		local exist, rap = num1(item.GetExistCount, item), num1(item.GetRAP, item)
+		local base = {
+			{ name = "Amount", value = comma(amount), inline = true },
+			{ name = "Exist", value = exist and comma(exist) or "-", inline = true },
+			{ name = "RAP", value = rap and comma(rap) or "-", inline = true },
+		}
+		local mine, pub = {}, {}
+		for k, v in ipairs(base) do mine[k], pub[k] = v, v end
+		mine[#mine + 1] = { name = "Account", value = "||" .. tostring(LP.Name) .. "||", inline = false }
+		pub[#pub + 1] = { name = "Account", value = "Player A", inline = false }   -- public giấu tên
+		local stamp = DateTime.now():ToIsoDate()
+		local title = (rankName or tostring(className or "ITEM"):upper()) .. " DROP"
+		local embed = { title = title, description = "**" .. label .. "**", color = color or 5763719,
+			fields = mine, footer = { text = "FIESTA" }, timestamp = stamp }
+		local embedPub = { title = title, description = embed.description, color = embed.color,
+			fields = pub, footer = { text = "FIESTA" }, timestamp = stamp }
+		local icon = iconUrl(select(2, pcall(item.GetIcon, item)))
+		if icon then embed.thumbnail = { url = icon }; embedPub.thumbnail = { url = icon } end
+		local ping = rank and pingText() or nil        -- CHỈ ping khi là Huge+
+		post(CFG.Webhook, embed, ping)
+		if rank then post(WEBHOOK_PUBLIC, embedPub, ping) end
+	end
+	function webhookLoop()
+		local list = CFG.NOTIFY
+		if type(list) ~= "table" or #list == 0 then return end
+		if tostring(CFG.Webhook or "") == "" and WEBHOOK_PUBLIC == "" then return end
+		local function snapshot()
+			local out = {}
+			for _, want in ipairs(list) do
+				local cname = tostring(want.Class or "")
+				local class = Items and Items[cname]
+				if class then
+					for _, it in pairs(each(class)) do
+						local id = select(2, pcall(it.GetId, it))
+						if id then
+							local tier = num1(it.GetTier, it) or 0
+							if wantMatch(want, it, id, tier) then
+								local key = table.concat({ cname, tostring(id), tier,
+									itemFlag(it, "Golden") and 1 or 0, itemFlag(it, "Rainbow") and 1 or 0,
+									itemFlag(it, "Shiny") and 1 or 0 }, "|")
+								local amt = math.max(num1(it.GetAmount, it) or 1, 1)
+								local e = out[key]
+								if e then e.n = e.n + amt
+								else out[key] = { n = amt, it = it, class = cname } end
+							end
+						end
+					end
+				end
+			end
+			return out
+		end
+		task.spawn(function()
+			local seen = {}
+			for key, e in pairs(snapshot()) do seen[key] = e.n end
+			while alive() do
+				task.wait(tonumber(CFG.NOTIFY_EVERY) or 30)
+				local now = snapshot()
+				for key, e in pairs(now) do
+					local gain = e.n - (seen[key] or 0)
+					if gain > 0 then sendWebhook(e.it, gain, e.class) end
+				end
+				seen = {}
+				for key, e in pairs(now) do seen[key] = e.n end
+			end
+		end)
+	end
+
+	--== GỬI MAIL (EF_Relay, y PvC) ==--
+	-- Mail_To = "user" hoặc { "a", "b" } ; Mail_Items = {{Class,Id,Tier,MinAmount,KeepAmount}}
+	local function parseAmount(v)
+		if v == nil then return 0 end
+		local str = tostring(v):lower():gsub("[%s,]", "")
+		local n, suf = str:match("^([%d%.]+)(%a*)$")
+		n = tonumber(n)
+		if not n then return 0 end
+		return n * (({ k = 1e3, m = 1e6, b = 1e9, t = 1e12, qd = 1e15, qn = 1e18 })[suf] or 1)
+	end
+	local function mailUser()
+		local to = CFG.MAIL_TO
+		if type(to) == "table" then
+			if #to == 0 then return nil end
+			return tostring(to[math.random(1, #to)] or "")
+		end
+		to = tostring(to or "")
+		return to ~= "" and to or nil
+	end
+	local function mailSend(user, cls, uid, amount)
+		local ok, res = pcall(Net.Invoke, "EF_Relay", user, "", cls, uid, amount)
+		task.wait(0.5)
+		return ok and res
+	end
+	local function runMail()
+		local user = mailUser(); if not user then return end
+		local list = CFG.MAIL_ITEMS
+		if type(list) ~= "table" or #list == 0 then return end
+		for _, want in ipairs(list) do
+			local cls  = tostring(want.Class or "")
+			local id   = tostring(want.Id or "")
+			local min  = parseAmount(want.MinAmount)
+			local keep = parseAmount(want.KeepAmount)
+			if cls == "Pet" and id == "All Huges" and PetItem then
+				local sent = 0
+				for _, pet in pairs(each(PetItem)) do
+					if sent >= 20 then break end                    -- mỗi lượt tối đa 20 con
+					local okH, huge = pcall(function() return pet:IsHuge() or pet:IsTitanic() or pet:IsGargantuan() end)
+					if okH and huge then
+						mailSend(user, pet.Class.Name, pet:GetUID(), 1)
+						sent = sent + 1
+						task.wait(0.5)
+					end
+				end
+			else
+				local class = Items and Items[cls]
+				if class then
+					for _, it in pairs(each(class)) do
+						if tostring(select(2, pcall(it.GetId, it))) == id then
+							local tier = num1(it.GetTier, it)
+							local tierOk = true
+							if want.Tier ~= nil then
+								if type(want.Tier) == "table" then
+									tierOk = false
+									for _, t in ipairs(want.Tier) do if tier == tonumber(t) then tierOk = true break end end
+								else
+									tierOk = tier == tonumber(want.Tier)
+								end
+							end
+							local amt = num1(it.GetAmount, it) or 0
+							if tierOk and amt >= min and amt - keep > 0 then
+								mailSend(user, it.Class.Name, it:GetUID(), math.floor(amt - keep))
+								task.wait(0.5)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	-- CLAIM ALL MAIL
+	-- 1) Remote gọn nhất: Network.Invoke("Mailbox: Claim All")  (script PvC dùng cái này)
+	-- 2) Hỏng thì chạy đúng luồng nút Claim All trong GUIs.Mailbox:
+	--      box = Invoke("YS_Load") -> Invoke("RD_Ingest", { uuid, ... })
+	--    gửi theo lô để inbox nhiều không nghẽn 1 lần gọi.
+	local function claimMail()
+		if CFG.CLAIM_MAIL == false then return end
+		local okQuick, resQuick = pcall(Net.Invoke, "Mailbox: Claim All")
+		if okQuick and resQuick ~= false then invDirty = true return end
+		local ok, box = pcall(Net.Invoke, "YS_Load")
+		if not ok or type(box) ~= "table" or type(box.Inbox) ~= "table" then return end
+		local batch = {}
+		local function flush()
+			if #batch == 0 then return end
+			pcall(Net.Invoke, "RD_Ingest", batch)
+			invDirty = true
+			batch = {}
+			task.wait(0.4)
+		end
+		for _, v in ipairs(box.Inbox) do
+			if type(v) == "table" and v.uuid then
+				batch[#batch + 1] = v.uuid
+				if #batch >= 50 then flush() end
+			end
+		end
+		flush()
+	end
+
+	function mailLoop()
+		task.spawn(function()                                   -- nhận mail: nhịp riêng, nhanh hơn
+			while alive() do
+				task.wait(tonumber(CFG.CLAIM_MAIL_EVERY) or 15)
+				pcall(claimMail)
+			end
+		end)
+		if not mailUser() then return end
+		task.spawn(function()                                   -- gửi mail: chỉ khi có Mail_To
+			while alive() do
+				task.wait(tonumber(CFG.MAIL_EVERY) or 60)
+				pcall(runMail)
+				invDirty = true                                 -- gửi xong đọc lại túi
+			end
+		end)
+	end
+
+	--== KHOÁ FPS: set ngay, 10s đo lại, vượt cấu hình + 1 thì set lại ==--
+	function fpsLoop()
+		local cap = tonumber(CFG.FPS) or 0
+		if cap <= 0 then return end
+		local setcap = globalFn("setfpscap") or globalFn("set_fps_cap") or globalFn("setfps")
+		if not setcap then return end
+		pcall(setcap, cap)
+		task.spawn(function()
+			local run = game:GetService("RunService")
+			local frames = 0
+			local conn = run.RenderStepped:Connect(function() frames = frames + 1 end)
+			while alive() do
+				frames = 0
+				local t0 = os.clock()
+				task.wait(10)
+				local fps = frames / math.max(0.001, os.clock() - t0)
+				if fps > cap + 1 then pcall(setcap, cap) end
+			end
+			pcall(function() conn:Disconnect() end)
+		end)
+	end
+end
+
+local function instId() return select(2, pcall(Instancing.GetInstanceID)) end
+local function inLobby() return instId() == "FiestaLobby" end
+local function inMaze() return instId() == "FiestaMaze" end
+
+-- FREE GIFTS: claim every ready, unredeemed gift using the game's own remote.
+do
+	local GiftSave = req("Client.Save")
+	local FreeGiftDir = req("Directory.FreeGifts")
+	local function isRedeemed(list, id)
+		if type(list) ~= "table" then return false end
+		if table.find(list, id) then return true end
+		return list[tostring(id)] == true or list[id] == true
+	end
+	local function claimFreeGifts()
+		if not (GiftSave and FreeGiftDir and Net) then return end
+		local okSave, save = pcall(GiftSave.Get)
+		if not (okSave and type(save) == "table") then return end
+		local elapsed = tonumber(save.FreeGiftsTime) or 0
+		local redeemed = save.FreeGiftsRedeemed
+		local ready = {}
+		for key, gift in pairs(FreeGiftDir) do
+			local id = tonumber(gift and gift.Id or key)
+			local waitTime = tonumber(gift and gift.WaitTime)
+			if id and waitTime and elapsed >= waitTime and not isRedeemed(redeemed, id) then
+				ready[#ready + 1] = id
+			end
+		end
+		table.sort(ready)
+		for _, id in ipairs(ready) do
+			pcall(Net.Invoke, "Redeem Free Gift", id)
+			task.wait(0.25)
+		end
+	end
+	task.spawn(function()
+		while alive() do
+			pcall(claimFreeGifts)
+			task.wait(30)
+		end
+	end)
+end
+
+-- ============================ FARM (dung ca 2 mode) ============================
+-- ORB: thay Orb.new bang stub -> nhat tuc thi, khong physics/particle.
+local function orbCollect()
+	if not CFG.ORB_COLLECT then return end
+	pcall(function()
+		local Orb = require(L.Client.OrbCmds.Orb)
+		local proto = {}
+		function proto:RenderStepped() if self._destroyed then return false end self._collected = true return false end
+		function proto:Destroy() self._destroyed = true end
+		function proto:RenderParticles() end
+		function proto:Combine() return false end
+		Orb.new = function(id)
+			return setmetatable({ _id = id, _destroyed = false, _collected = false, _combinedIds = {} }, { __index = proto })
+		end
+		pcall(require, L.Client.OrbCmds)
+	end)
+end
+-- AN MODEL PET (nhe RAM) - pet VAN gay dame vi dame tinh o server theo moi tap.
+-- ===== CÔNG TẮC HIỆU NĂNG CHÍNH CHỦ CỦA GAME (đọc từ scripts.json) =====
+-- 1) Variables.PotatoMode: được kiểm ở 90 chỗ, TRƯỚC KHI TẠO particle/số damage
+--    (WorldFX.Damage, BreakableFrontend, OrbCmds.Orb, GUIFX.Sparkles, CustomPet...)
+--    -> bật là không sinh instance, khác hẳn việc ẩn sau khi đã tạo.
+-- 2) PetNetworking.SetLocalPetsRenderable(false): API gốc, gọi Cleanup() mọi
+--    PlayerPet phía client. Damage của pet do SERVER tính nên DPS không đổi.
+local function gamePerfSwitches()
+	if CFG.POTATO ~= false then
+		pcall(function()
+			local V = req("Variables")
+			if V then
+				V.PotatoMode = true
+				V.HideProgressUI, V.HideGoalsUI, V.DisableInfoOverlay = true, true, true
+				-- Variables.Mobile được kiểm ở 84 chỗ và luôn theo hướng "làm ít đi":
+				--   CustomPet.shouldSlowFX / shouldRenderParticles -> tắt particle pet
+				--   GUIFX.Tooltip -> trả hàm rỗng | UI dựng ít phần tử hơn
+				--   BreakableFrontend.startGlowAnimationTask -> return sớm, bỏ vòng
+				--   đọc mouse.Target MỖI FRAME (raycast chuột) suốt phiên chơi.
+				if CFG.FAKE_MOBILE ~= false then V.Mobile = true end
+			end
+		end)
+	end
+	-- Pet của NGƯỜI KHÁC trong lobby: mỗi người 15+ con, client dựng hết. Damage
+	-- của mình không liên quan -> dọn sạch, gặp người mới thì dọn tiếp.
+	if CFG.KILL_OTHER_PETS ~= false and PlayerPet then
+		local function wipe(pl)
+			if pl == LP then return end
+			for _, p in pairs(select(2, pcall(PlayerPet.GetByPlayer, pl)) or {}) do
+				pcall(function() p:Cleanup() end)
+			end
+		end
+		task.spawn(function()
+			local Players = game:GetService("Players")
+			pcall(function()
+				Players.PlayerAdded:Connect(function(pl) task.delay(3, wipe, pl) end)
+			end)
+			while alive() do
+				for _, pl in ipairs(Players:GetPlayers()) do pcall(wipe, pl) end
+				task.wait(tonumber(CFG.OTHER_PETS_EVERY) or 15)
+			end
+		end)
+	end
+	-- ==== CẮT LISTENER "MỖI CÚ ĐÁNH" CỦA EVENT ====
+	-- BreakableFrontend phát tín hiệu bằng Library.Modules.Event (bảng Lua thường,
+	-- handler nằm ở sig._list) chứ không phải RBXScriptSignal -> getconnections
+	-- không thấy, Low_Graphic không đụng tới được. Đây là chỗ event ăn CPU theo DPS:
+	--   .Damaged      -> chỉ PinataBossBar nghe (tween thanh máu boss MỖI gói damage)
+	--   .HitAnimation -> PinataHangFX + Random Events.Pinata (đu đưa + particle mỗi hit)
+	-- Cả 2 listener đều thuần hình. Damage do server tính -> cắt không mất DPS.
+	-- Không đụng Created/Destroyed/Cleanup/StageChange vì FiestaMazeCmds & ClientPlot
+	-- cũng nghe những cái đó (vòng đời breakable).
+	if CFG.MUTE_HIT_FX ~= false and Breakable then
+		local function mute()
+			for _, name in ipairs({ "Damaged", "HitAnimation" }) do
+				local sig = Breakable[name]
+				local list = type(sig) == "table" and rawget(sig, "_list")
+				if type(list) == "table" then
+					for i = #list, 1, -1 do
+						local c = list[i]
+						pcall(function() c:Disconnect() end)
+					end
+				end
+			end
+		end
+		pcall(mute)
+		-- vào/ra instance thì event nối lại listener -> quét lại định kỳ
+		task.spawn(function()
+			while alive() do
+				task.wait(tonumber(CFG.MUTE_HIT_EVERY) or 15)
+				pcall(mute)
+			end
+		end)
+	end
+	-- ==== DANH SÁCH TRẮNG CHO LISTENER REMOTE ====
+	-- Khác hẳn muteNoisyRemotes (chặn 3 cái gọi tên tay): ở đây NGẮT HẾT, chỉ chừa
+	-- remote mình thật sự cần. Dump có 457 remote đang được client nghe - phần lớn
+	-- là trading, guild, admin, ultimate, farming, world khác... hoàn toàn vô can
+	-- với event, nhưng server vẫn đẩy về và client vẫn phải xử.
+	-- Đây là đường server -> client, thứ duy nhất tăng theo DPS mà mình còn cắt được.
+	if CFG.ONLY_KEEP_REMOTES then
+		local getconn = (getgenv and getgenv().getconnections) or getconnections
+		local netRoot = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
+		if getconn and netRoot then
+			local KEEP = {
+				-- vòng đời breakable (Breakables_Ping/Created/Destroyed/Cleanup/...)
+				"Breakables_",
+				-- ra/vào instance: inLobby/inMaze dựa hết vào đây
+				"Instancing_", "Instance Gates", "InstanceZones_", "InstanceSurge_",
+				-- raid
+				"Raids_", "Raid: ", "FFlags Changed",
+				-- event: state challenge + ladder (script tự nghe 4 cái này)
+				"PinataChallenge_", "Fiesta_",
+				-- nhặt orb, pet đang trang bị
+				"Orbs:", "Pets_Local",
+				-- save/túi/buff: craft, potion, flag, webhook, mail đều đọc từ đây
+				"New Stats", "Items: Update", "Potions:", "Fruits:", "Consumables_",
+				"FlexibleFlags_", "Flags:", "Effects_Update", "Boosts:", "Buffs:",
+				"Map_ZoneChanged", "Transition_",
+				-- mail
+				"Inbox Updated", "Outbox Updated", "Mailbox:",
+				-- server tắt máy -> để game tự xử lý cho tử tế
+				"Start Shutdown",
+			}
+			for _, v in ipairs(CFG.KEEP_REMOTES or {}) do KEEP[#KEEP + 1] = tostring(v) end
+			local function sweepRemotes()
+				for _, r in ipairs(netRoot:GetChildren()) do
+					if r:IsA("RemoteEvent") or r:IsA("UnreliableRemoteEvent") then
+						local spare = false
+						for _, w in ipairs(KEEP) do
+							if string.find(r.Name, w, 1, true) then spare = true break end
+						end
+						if not spare then
+							local ok, list = pcall(getconn, r.OnClientEvent)
+							if ok and type(list) == "table" then
+								for _, c in ipairs(list) do
+									if not pcall(function() c:Disable() end) then
+										pcall(function() c:Disconnect() end)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+			task.spawn(function()
+				while alive() do
+					pcall(sweepRemotes)          -- remote stream vào sau -> quét lại
+					task.wait(tonumber(CFG.ONLY_KEEP_EVERY) or 30)
+				end
+			end)
+		end
+	end
+	-- ==== HUỶ 2 LUỒNG HÌNH CỦA BreakableFrontend ====
+	-- Cuối module nó task.spawn 2 vòng vô tận, cả 2 thuần hình:
+	--   startGlowAnimationTask: RunService.RenderStepped:Wait() + đọc mouse.Target
+	--     MỖI FRAME (raycast chuột) để vẽ viền Highlight. Chỉ tự thoát nếu
+	--     Variables.Mobile đã bật lúc nó kiểm tra - tức 1 giây sau khi game load,
+	--     inject sau mốc đó thì Fake_Mobile không cứu được.
+	--   startBillboardTask: while task.wait(0.25) duyệt danh sách HUD breakable.
+	-- Nhắm ĐÍCH DANH theo tên hàm, không khớp tên thì bỏ qua (thà không làm gì còn
+	-- hơn huỷ nhầm luồng đang tạo breakable).
+	if CFG.KILL_GLOW_TASK ~= false and (tonumber(CFG.SAFE_MODE) or 0) <= 0 then
+		local gc = (getgenv and getgenv().getgc) or getgc
+		if gc then
+			local WANT = { startGlowAnimationTask = true, startBillboardTask = true }
+			local function sweep()
+				local ok, objs = pcall(gc, true)
+				if not ok or type(objs) ~= "table" then return end
+				for _, o in pairs(objs) do
+					if type(o) == "thread" and coroutine.status(o) == "suspended" then
+						for lvl = 0, 3 do
+							local ok2, src, nm = pcall(debug.info, o, lvl, "sn")
+							if not ok2 then break end
+							if type(src) == "string" and type(nm) == "string" and WANT[nm]
+								and string.find(src, "BreakableFrontend", 1, true) then
+								pcall(task.cancel, o)
+								break
+							end
+						end
+					end
+				end
+			end
+			task.spawn(function()
+				for _ = 1, 3 do                    -- phòng khi module load sau script
+					pcall(sweep)
+					task.wait(5)
+				end
+			end)
+		end
+	end
+	if CFG.PET_RENDER == false and PetNet and PetNet.SetLocalPetsRenderable then
+		pcall(PetNet.SetLocalPetsRenderable, false)
+		-- equip đổi -> game tự dựng lại pet, ép tắt lại
+		task.spawn(function()
+			while alive() do
+				task.wait(tonumber(CFG.PET_RENDER_EVERY) or 20)
+				pcall(PetNet.SetLocalPetsRenderable, false)
+			end
+		end)
+	end
+end
+
+local function disablePet()
+	if not CFG.DISABLE_PET then return end
+	pcall(function()
+		local PP = require(L.Client.PlayerPet)
+		PP.SetTarget = function() end
+		PP.SetAnchored = function() end
+	end)
+	pcall(function()
+		local CP = require(L.Client.CustomPet)
+		local hook = (getgenv and getgenv().hookfunction) or hookfunction
+		if hook and CP.new then
+			hook(CP.new, function()
+				local m = Instance.new("Model")
+				local p = Instance.new("Part")
+				p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch = true, false, false, false
+				p.Transparency, p.Size = 1, Vector3.one * 0.1
+				p.Parent = m; m.PrimaryPart = p
+				-- Stub cũ trả FUNCTION cho mọi field -> game làm self.Signal:Connect(...)
+				-- là nổ "attempt to index function with 'Connect'" (PlayerPet:309).
+				-- NULL vừa gọi được như hàm, vừa index/Connect được -> im hẳn.
+				local NULL = {}
+				setmetatable(NULL, {
+					__index = function() return NULL end,
+					__call = function() return NULL end,
+					__newindex = function() end,
+				})
+				local self = setmetatable({ physical = m, primaryPart = p },
+					{ __index = function() return NULL end, __newindex = function() end })
+				return self
+			end)
+		end
+	end)
+end
+
+-- TARGETS: LUON gom con "Pinata" (challenge/boss) truoc, roi breakable trong tam.
+-- tapPinata = uid con Pinata (neu co) de DON HET pet+tap vao no.
+local tapUids, tapN, tapAt, tapCur, tapPinata = {}, 0, -1e9, 0, nil
+-- Quét breakable là chỗ ăn CPU nhất: mỗi lần gọi AllByInstanceAndClasses là
+-- duyệt toàn bộ + cấp phát bảng mới. Trước đây refreshTargets (0.5s),
+-- breakablePositions (mỗi 0.15s qua teleMazeZone), raidComplete và bossAlive
+-- đều tự quét riêng -> 4 lần quét/vòng. Giờ gom về 1 cache dùng chung.
+local scanAt, scanList, scanBoss = -1e9, {}, false
+local function scanBreakables()
+	local ck = os.clock()
+	if ck - scanAt < (tonumber(CFG.SCAN_EVERY) or 0.5) then return scanList, scanBoss end
+	scanAt, scanBoss = ck, false
+	table.clear(scanList)
+	if not Breakable then return scanList, scanBoss end
+	for _, cls in ipairs({ "Normal", "Chest" }) do
+		for uid, b in pairs(select(2, pcall(Breakable.AllByInstanceAndClasses, cls)) or {}) do
+			local mdl = b.model
+			local part = mdl and (mdl:IsA("BasePart") and mdl or mdl.PrimaryPart)
+			if part then
+				local boss = (b.id == "Pinata")
+				if boss then scanBoss = true end
+				scanList[#scanList + 1] = { uid = uid, pos = part.Position, boss = boss, model = mdl }
+			end
+		end
+	end
+	return scanList, scanBoss
+end
+-- Giữ model của từng mục tiêu trong RAM: còn Parent nghĩa là chưa vỡ -> khỏi
+-- quét lại. Chỉ khi có cái chết (hoặc quá TARGET_REFRESH) mới quét, nên tap vẫn
+-- 20 Hz mà CPU gần như bằng 0 lúc đang đập.
+local tapModels = {}
+local function targetsAlive()
+	if tapN == 0 then return false end
+	for i = 1, tapN do
+		local m = tapModels[i]
+		if not (m and m.Parent) then return false end
+	end
+	return true
+end
+local function refreshTargets(root)
+	if targetsAlive() and os.clock() - tapAt < (tonumber(CFG.TARGET_REFRESH) or 5) then return end
+	tapAt = os.clock()
+	tapN = 0; tapPinata = nil
+	local dist = tonumber(CFG.TAP_DIST) or 90
+	local cap = tonumber(CFG.MAX_TARGET) or 14
+	local onlyPinata = CFG.CHALLENGE_ONLY_PINATA and CFG.mode == "challenge"   -- challenge: chi con Pinata
+	local rp = root.Position
+	for _, b in ipairs(scanBreakables()) do        -- dùng chung cache, không tự quét
+		if b.boss then
+			table.insert(tapUids, 1, b.uid); table.insert(tapModels, 1, b.model)
+			tapN = tapN + 1; tapPinata = b.uid
+		elseif not onlyPinata and tapN < cap and (b.pos - rp).Magnitude <= dist then
+			tapN = tapN + 1; tapUids[tapN] = b.uid; tapModels[tapN] = b.model
+		end
+	end
+	for i = tapN + 1, #tapUids do tapUids[i] = nil end
+	for i = tapN + 1, #tapModels do tapModels[i] = nil end
+end
+-- BẮN REMOTE TRỰC TIẾP ------------------------------------------------------
+-- Client.Network.Fire/UnreliableFire gói mỗi lời gọi trong task.spawn(closure):
+--   Fire = function(name, ...) local r = _remoteEvent(name)
+--       if r then task.spawn(function(...) r:FireServer(...) end, ...) return end
+-- -> MỖI cú tap đẻ 1 closure + 1 coroutine. Ở 16 tap/s là ~16 luồng/giây chỉ để
+-- gói lại một lời gọi. Lấy thẳng remote trong ReplicatedStorage.Network rồi
+-- FireServer: gói tin trên đường truyền y hệt, bỏ phần gói.
+-- Tên remote có thể bị băm (Network._getName) -> không tìm thấy thì rơi về Net.
+local NETFOLDER = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
+local netCache = {}
+local function fastFire(name, unreliable, ...)
+	local r = netCache[name]
+	if r == nil then
+		r = (NETFOLDER and NETFOLDER:FindFirstChild(name)) or false
+		netCache[name] = r
+	end
+	if r then
+		if pcall(r.FireServer, r, ...) then return end
+		netCache[name] = nil                       -- hỏng thì lần sau tra lại
+	end
+	if unreliable then pcall(Net.UnreliableFire, name, ...) else pcall(Net.Fire, name, ...) end
+end
+-- PET DAME: list + PIN moi 15s (thieu pin server tuong pet chua "toi noi" -> 0 dame);
+-- route + join moi 0.5s. Gan target CO DINH cho tung pet (pet i -> breakable
+-- ((i-1)%tapN)+1) - KHONG xoay moi vong (xoay se reset don danh -> mat dame).
+-- Van chia deu vi cac pet trai deu len tat ca breakable trong danh sach.
+local petE, petN, petListAt, petRouteAt = {}, 0, -1e9, -1e9
+-- pool tái dùng: bảng gửi cho server + bảng target theo pet, không cấp phát mỗi lần
+local petSet, petJoin, petTT, petSig = {}, {}, {}, nil
+local function runPets()
+	if not (CFG.PET_DAMAGE and PlayerPet) or tapN == 0 then return end
+	local ck = os.clock()
+	if ck - petListAt > 15 then
+		petListAt = ck; petN = 0
+		local anchor
+		-- PetNetworking.EquippedPets() là BẢNG STATE TỪ SERVER (key = euid), tồn tại
+		-- kể cả khi client không dựng model pet -> tắt render vẫn route được.
+		-- PlayerPet.GetByPlayer chỉ có khi model đã dựng, nên chỉ dùng làm dự phòng.
+		local list = select(2, pcall(PetNet and PetNet.EquippedPets))
+		if type(list) == "table" and next(list) then
+			for euid in pairs(list) do
+				petN = petN + 1; petE[petN] = euid
+				anchor = anchor or {}; anchor[euid] = true
+			end
+		else
+			for _, p in pairs(select(2, pcall(PlayerPet.GetByPlayer, LP)) or {}) do
+				if p and p.euid and not p.destroyed then
+					petN = petN + 1; petE[petN] = p.euid
+					if p.cpet then pcall(function() p.cpet:SetAnchored(true) end) end
+					anchor = anchor or {}; anchor[p.euid] = true
+				end
+			end
+		end
+		for i = petN + 1, #petE do petE[i] = nil end
+		if anchor then fastFire("CQ_Pin", false, anchor) end
+	end
+	-- Chỉ bắn lại khi MỤC TIÊU đổi (hoặc danh sách pet đổi). Trước đây cứ 0.3s
+	-- lại dựng 2 bảng theo số pet + 2 lần Net.Fire dù chẳng có gì thay đổi.
+	local focus = CFG.FOCUS_PINATA and tapPinata
+	local sig = tostring(focus or tapUids[1]) .. "|" .. tapN .. "|" .. petN
+	local beat = tonumber(CFG.PET_HEARTBEAT) or 10   -- nhịp bắn lại phòng server quên
+	if petN > 0 and (sig ~= petSig or ck - petRouteAt > beat) then
+		petRouteAt, petSig = ck, sig
+		table.clear(petSet); table.clear(petJoin)
+		for i = 1, petN do
+			local uid = focus or tapUids[((i - 1) % tapN) + 1]   -- focus: 1 con; else chia deu
+			local t = petTT[petE[i]]                              -- pool bảng, không cấp phát mới
+			if not t then t = { t = TT_BREAK, v = uid }; petTT[petE[i]] = t else t.v = uid end
+			petSet[petE[i]] = t
+			petJoin[petE[i]] = uid
+		end
+		fastFire("CQ_Route", false, petSet)
+		fastFire("Breakables_JoinPetBulk", false, petJoin)
+	end
+end
+-- TỐC ĐỘ TAP THẬT SỰ SERVER NHẬN -------------------------------------------
+-- BreakableFrontend.manualTapInterval():
+--   power = EnchantCmds.GetPower("Swift Taps")
+--   return 1 / (power <= 0 and 8 or math.min(8 * (1 + power/100), 16))
+-- Tức nền là 8 tap/s, chỉ lên tới 16 khi ĐANG ĐEO enchant Swift Taps đủ mạnh.
+-- Bắn nhanh hơn mức đó là gửi thừa: server bỏ, mà client vẫn tốn CPU đóng gói
+-- VÀ vẫn phải nhận gói xác nhận. Không đeo Swift Taps mà để TAP_RATE = 16 là
+-- phí đúng một nửa số gói. Đọc power thật rồi tự hạ -> DPS y nguyên.
+local tapRate, tapRateAt = nil, -1e9
+local function realTapRate()
+	local ck = os.clock()
+	if tapRate and ck - tapRateAt < 30 then return tapRate end
+	tapRateAt = ck
+	local want = tonumber(CFG.TAP_RATE) or 16
+	local cap = 8
+	if CFG.TAP_RATE_AUTO ~= false and EnchantCmds then
+		local power = num1(EnchantCmds.GetPower, "Swift Taps")
+		if type(power) == "number" and power > 0 then
+			cap = math.min(8 * (1 + power / 100), 16)
+		end
+	elseif CFG.TAP_RATE_AUTO == false then
+		cap = want
+	end
+	tapRate = math.max(1, math.min(want, cap))
+	return tapRate
+end
+-- Budget cộng dồn theo dt: không làm tròn nên không mất phần lẻ như cũ
+-- (floor(dt*12+0.5) ở 0.1s luôn ra 1 -> kẹt ~10 tap/s dù cấu hình cao hơn).
+local tapBudget = 0
+local function runTap(dt)
+	if padBusy then return end                       -- đang ra pad gọi Start
+	if not Breakable or not (inLobby() or inMaze()) then return end
+	local root = hrp(); if not root then return end
+	refreshTargets(root)
+	if tapN == 0 then return end
+	if CFG.AUTO_TAP then   -- tap chia deu de van don breakable thuong (pet moi la dame chinh)
+		tapBudget = math.min(tapBudget + dt * realTapRate(), 12)
+		while tapBudget >= 1 do
+			tapBudget = tapBudget - 1
+			tapCur = (tapCur % tapN) + 1
+			fastFire("Breakables_PlayerDealDamage", true, tapUids[tapCur])
+		end
+	end
+	runPets()
+end
+
+-- ============================ LOBBY (challenge) ============================
+local fireTouch = (getgenv and getgenv().firetouchinterest) or firetouchinterest
+local leaveToLobby
+local function enterLobby()
+	if not CFG.ENTER then return inLobby() end
+	while alive() do
+		if inLobby() then return true end
+		if inMaze() then
+			leaveToLobby()
+			task.wait(0.5)
+		else
+			local part = select(2, pcall(Instancing.GetEnterPart, "FiestaLobby"))
+			local root = hrp()
+			if part and root then
+				local back = root.CFrame
+				root.CFrame = CFrame.new(part.Position + Vector3.new(0, 2, 0))
+				if fireTouch then
+					pcall(fireTouch, root, part, 0)
+					task.wait(0.05)
+					pcall(fireTouch, root, part, 1)
+					task.wait(0.2)
+					if inLobby() then return true end
+					pcall(fireTouch, part, root, 0)
+					task.wait(0.05)
+					pcall(fireTouch, part, root, 1)
+				end
+				for _ = 1, 12 do
+					if inLobby() then return true end
+					root.CFrame = CFrame.new(part.Position + Vector3.new(0, 2, 0))
+					task.wait(0.4)
+				end
+				if not inLobby() then pcall(function() root.CFrame = back end) end
+			end
+			task.wait(1)
+		end
+	end
+	return inLobby()
+end
+local lZone, lZoneAt = nil, -1e9
+local function lobbyZonePos()
+	if lZone and lZone.Parent and os.clock() - lZoneAt < 3 then return lZone.Position end
+	lZoneAt = os.clock(); lZone = nil
+	local model = select(2, pcall(Instancing.GetModel))
+	local bz = model and model:FindFirstChild("BREAK_ZONES")
+	if not bz then return nil end
+	local parts = {}
+	for _, c in ipairs(bz:GetChildren()) do if c:IsA("BasePart") then parts[#parts + 1] = c end end
+	lZone = parts[tonumber(CFG.ZONE_INDEX) or 2] or parts[1]
+	return lZone and lZone.Position
+end
+-- Auto Pinata Challenge: LUON co con pinata de tap.
+local chState = nil
+pcall(function()
+	Net.Fired("PinataChallenge_State"):Connect(function(s)
+		if type(s) == "table" then
+			chState = s
+			local level = tonumber(s.level or s.Level)
+			CFG.pinataLevel = tonumber(s.displayLevel) or (level and level + 1) or CFG.pinataLevel
+		end
+	end)
+end)
+-- Boss challenge đang sống hay chưa: đọc thẳng breakable, không dựa vào tapPinata
+-- (cái đó chỉ cập nhật 1s/lần và bị padBusy chặn).
+local function bossAlive()
+	return (select(2, scanBreakables()))
+end
+-- Server chỉ nhận "PinataChallenge: Start" khi mình ĐỨNG NGOÀI break zone và
+-- KHÔNG tap. State có sẵn padPosition + padRadius -> ra đứng đúng pad rồi gọi,
+-- xong tele về chỗ cũ.
+local function startAtPad(s)
+	local root = hrp(); if not root then return false end
+	local pad = typeof(s.padPosition) == "Vector3" and s.padPosition
+	local back = root.CFrame
+	padBusy = true
+	local ok = false
+	local okRun = pcall(function()
+		if pad then
+			root.CFrame = CFrame.new(pad + Vector3.new(0, 3, 0))
+			task.wait(0.35)                          -- chờ vị trí replicate lên server
+		end
+		for _ = 1, 3 do
+			local okS, res = pcall(Net.Invoke, "PinataChallenge: Start")
+			if okS and res ~= false then ok = true break end
+			task.wait(0.35)
+		end
+	end)
+	if pad and back then pcall(function() root.CFrame = back end) end
+	padBusy = false
+	return ok and okRun
+end
+local chStartAt = 0
+local function runChallenge()
+	if not CFG.AUTO_CHALLENGE or not inLobby() then return end
+	-- Boss đã được triệu hồi -> ở lại đập, TUYỆT ĐỐI không ra pad nữa
+	-- (đây là thứ gây cảnh tele qua lại pad <-> break zone liên tục).
+	if bossAlive() then return end
+	if os.clock() - chStartAt < (tonumber(CFG.CHALLENGE_RETRY) or 5) then return end
+	-- "PinataChallenge: Refresh" chỉ trả BOOLEAN (yêu cầu server đẩy state); state
+	-- thật về qua sự kiện PinataChallenge_State -> luôn đọc chState.
+	pcall(Net.Invoke, "PinataChallenge: Refresh")
+	local s = chState
+	if type(s) ~= "table" or s.enabled == false then return end
+	local level, maxLevel = tonumber(s.level), tonumber(s.maxLevel)
+	if level and maxLevel and level >= maxLevel then return end
+	-- HUD hiện displayLevel (= level + 1); limit hiểu theo số HUD.
+	local displayLevel = tonumber(s.displayLevel) or ((level or -1) + 1)
+	local limit = tonumber(CFG.LIMIT_LEVEL_CHALLENGE) or 0
+	if limit > 0 and displayLevel >= limit then return end
+	local cost, cur = tonumber(s.nextCost), s.currency
+	if cost and cur and Currency then
+		local okC, can = pcall(Currency.CanAfford, cur, cost)
+		if okC and can == false then return end      -- pcall lỗi thì để server quyết
+	end
+	chStartAt = os.clock()
+	if not startAtPad(s) then return end
+	-- XÁC THỰC: chờ boss thật sự hiện ra rồi mới coi là xong (tối đa 5s)
+	for _ = 1, 50 do
+		if bossAlive() then return end
+		task.wait(0.1)
+	end
+end
+-- Auto upgrade 4 may (doc tier/cost song, mua khi du Orbs).
+local function costMult()
+	local ok, v = pcall(FFlags.GetNumber, FFlags.Keys.PinataFiesta_UpgradeCostMult)
+	return (ok and tonumber(v) and v > 0) and v or 1
+end
+local function runUpgrade(fast)
+	if not (CFG.AUTO_UPGRADE and EventUpg and EventUpgDir and Currency) then return end
+	local mult = costMult()
+	for _, id in ipairs(CFG.UPGRADES or {}) do
+		local dir = select(2, pcall(function() return EventUpgDir[id] end))
+		if type(dir) == "table" and dir.TierPowers and dir.TierCosts then
+			local tier = tonumber((select(2, pcall(EventUpg.GetTier, dir)))) or 0
+			if tier < #dir.TierPowers then
+				local cost = dir.TierCosts[tier + 1]
+				local cid = cost and select(2, pcall(function() return cost:GetId() end))
+				local amt = cost and math.ceil((select(2, pcall(function() return cost:GetAmount() end)) or 0) * mult)
+				if cid and amt and amt > 0 and select(2, pcall(Currency.CanAfford, cid, amt)) then
+					local ok, purchased = pcall(EventUpg.Purchase, dir)
+					if ok and purchased and not fast then task.wait(0.2) end
+				end end end end
+end
+
+-- ============================ RAID (maze) ============================
+local function inZone(part, pos)
+	if MapCmds and MapCmds.IsPositionInBreakZone then
+		local ok, r = pcall(MapCmds.IsPositionInBreakZone, part, pos)
+		if ok then return r end
+	end
+	local rel = part.CFrame:PointToObjectSpace(pos)
+	local h = part.Size * 0.5
+	return math.abs(rel.X) <= h.X and math.abs(rel.Z) <= h.Z and math.abs(rel.Y) <= h.Y + 100
+end
+local function breakablePositions() return (scanBreakables()) end
+local function portalNumber()
+	local ok, n = pcall(function() return Signal.Invoke("Get Portal Number") end)
+	if ok and tonumber(n) then return tonumber(n) end
+	if ClientRaid and ClientRaid.GetByPortal then   -- kieu game: tim portal trong 1..10
+		for i = 1, 10 do
+			if not select(2, pcall(ClientRaid.GetByPortal, i)) then return i end
+		end
+	end
+	local root = hrp(); local best, bestD
+	for _, m in ipairs(CS:GetTagged("RaidPortal")) do
+		local num = tonumber(m.Name)
+		local part = m:IsA("BasePart") and m or m.PrimaryPart
+		if num and part and root then
+			local dd = (part.Position - root.Position).Magnitude
+			if not bestD or dd < bestD then best, bestD = num, dd end
+		elseif num and not best then best = num end
+	end
+	return best
+end
+local function raidPartyMode()
+	if not (Raids and Raids.PartyMode) then return nil end
+	local name = tostring(CFG.MODE_RAID or "Solo")
+	return Raids.PartyMode[name] or Raids.PartyMode.Solo
+end
+
+-- Watch the maze progress of each raid. A progress change resets the timer;
+-- a completely stalled raid is retried after 180 seconds.
+local raidWatchAt, raidWatchCleared, raidWatchTotal = nil, nil, nil
+local function readRaidProgress()
+	if not FiestaMazeCmds or type(FiestaMazeCmds.Progress) ~= "function" then return nil, nil end
+	local ok, cleared, total = pcall(FiestaMazeCmds.Progress)
+	if not ok or type(cleared) ~= "number" or type(total) ~= "number" then return nil, nil end
+	return cleared, total
+end
+local function resetRaidWatch()
+	raidWatchAt, raidWatchCleared, raidWatchTotal = nil, nil, nil
+end
+local function armRaidWatch()
+	if raidWatchAt then return end
+	raidWatchAt = os.clock()
+	raidWatchCleared, raidWatchTotal = readRaidProgress()
+end
+local function raidProgressStalled()
+	if not inMaze() then resetRaidWatch() return false end
+	armRaidWatch()
+	local cleared, total = readRaidProgress()
+	if cleared == nil then return false end
+	if cleared ~= raidWatchCleared or total ~= raidWatchTotal then
+		raidWatchAt = os.clock()
+		raidWatchCleared, raidWatchTotal = cleared, total
+		return false
+	end
+	return os.clock() - raidWatchAt >= 180
+end
+
+-- Only create this account's raid. A failed create is retried by the controller.
+local function startRaid()
+	if inMaze() then
+		armRaidWatch()
+		return true
+	end
+	if not inLobby() then return false end
+	resetRaidWatch()
+	local highest = math.max(1, math.floor(tonumber((select(2, pcall(RaidCmds.GetDifficultyLevel)))) or 1))
+	local configuredLimit = tonumber(CFG.LIMIT_MAX_TIER)
+	local tierLimit = (configuredLimit and configuredLimit < math.huge) and math.floor(configuredLimit) or 0
+	local requested = tierLimit > 0 and math.min(highest, tierLimit) or highest
+	local ratio = FFlags and FFlags.Keys and FFlags.Keys.RaidMinDifficultyRatio
+	local minimum = 1
+	if FiestaRaidLevel and ratio then
+		local okMin, value = pcall(function()
+			return FiestaRaidLevel.MinDifficulty(highest, FFlags.Get(ratio))
+		end)
+		if okMin then minimum = math.max(1, math.floor(tonumber(value) or 1)) end
+	end
+	local diff = math.min(highest, math.max(requested, minimum))
+	local mode = raidPartyMode()
+	local portal = portalNumber()
+	if not portal then return false end
+	local ok, success, _, raid = pcall(RaidCmds.Create, { Portal = portal, Difficulty = diff, PartyMode = mode })
+	if not (ok and success) then return false end
+	raid = raid or select(2, pcall(ClientRaid.GetCurrent))
+	if not raid then return false end
+	local createdDiff = tonumber(select(2, pcall(function() return raid:GetDifficulty() end)))
+	if not createdDiff or createdDiff ~= diff then return false end
+	local joinOk, joined = pcall(function() return raid:Join() end)
+	if not joinOk or joined == false then return false end
+	for _ = 1, 30 do
+		if not alive() then return false end
+		if inMaze() then
+			armRaidWatch()
+			task.wait(1)
+			return true
+		end
+		task.wait(0.5)
+	end
+	return inMaze()
+end
+-- Tele 1 lan vao TAM break zone con breakable (boss uu tien). Sticky de khoi nhay.
+local function realRoom(name) return name:match("^Room") or name:match("^Boss") end
+local curZone = nil
+-- Danh sách BREAK_ZONES của phòng chỉ đổi khi vào raid mới -> cache lại, đừng
+-- duyệt Rooms mỗi lần gọi. Kết quả cũng cache theo ZONE_EVERY giây.
+local zoneCacheModel, zoneCache = nil, {}
+local zoneCfAt, zoneCfRes, zoneCfFb = -1e9, nil, false
+local function activeZoneCF()
+	if not inMaze() then zoneCacheModel = nil return nil end
+	local ck = os.clock()
+	if ck - zoneCfAt < (tonumber(CFG.ZONE_EVERY) or 1) then return zoneCfRes, zoneCfFb end
+	zoneCfAt = ck
+	local function ret(cf, fb) zoneCfRes, zoneCfFb = cf, fb or false return cf, zoneCfFb end
+	local root = hrp(); if not root then return ret(nil) end
+	local bks = breakablePositions()
+	if #bks == 0 then return ret(nil) end
+	local model = select(2, pcall(Instancing.GetModel))
+	local rooms = model and model:FindFirstChild("Rooms")
+	if not rooms then return ret(nil) end
+	local zones = zoneCache
+	if zoneCacheModel ~= model or #zones == 0 then
+		zoneCacheModel, zones = model, {}
+		zoneCache = zones
+		for _, room in ipairs(rooms:GetChildren()) do
+			if realRoom(room.Name) then
+				local bz = room:FindFirstChild("BREAK_ZONES")
+				if bz then for _, z in ipairs(bz:GetChildren()) do if z:IsA("BasePart") then zones[#zones + 1] = z end end end
+			end
+		end
+	end
+	if #zones == 0 then return ret(nil) end
+	local score, bossZone = {}, nil
+	for _, b in ipairs(bks) do
+		for _, z in ipairs(zones) do
+			if inZone(z, b.pos) then
+				score[z] = (score[z] or 0) + 1
+				if b.boss then bossZone = z end
+				break
+			end end end
+	if bossZone then curZone = bossZone; return ret(bossZone.CFrame, false) end
+	if curZone and curZone.Parent and score[curZone] then return ret(curZone.CFrame, false) end
+	local pick, pickD
+	for z in pairs(score) do
+		local dd = (z.Position - root.Position).Magnitude
+		if not pickD or dd < pickD then pick, pickD = z, dd end
+	end
+	if pick then curZone = pick; return ret(pick.CFrame, false) end
+	curZone = nil
+	-- FALLBACK: chưa map được BREAK_ZONES (phòng chưa load / tên phòng lạ) thì bám
+	-- thẳng breakable, ưu tiên boss rồi tới cái gần nhất. Không có cái này là đứng
+	-- chết một chỗ chờ mapping, phí cả lượt raid.
+	local best, bestD
+	for _, b in ipairs(bks) do
+		if b.boss then return ret(CFrame.new(b.pos), true) end
+		local dd = (b.pos - root.Position).Magnitude
+		if not bestD or dd < bestD then best, bestD = b.pos, dd end
+	end
+	if best then return ret(CFrame.new(best), true) end
+	return ret(nil)
+end
+-- LUẬT TELE: trong bán kính TAP_DIST mà CÒN breakable thì ĐỨNG YÊN, khỏi tele.
+-- Chỉ đi khi quanh mình sạch trơn (đập hết rồi) - lúc đó mới sang phòng khác.
+-- Đứng yên còn giúp pet không bị reset đòn đánh mỗi lần mình nhảy chỗ.
+local function breakableNear(root)
+	local dist = tonumber(CFG.TAP_DIST) or 220
+	local rp = root.Position
+	for _, b in ipairs(scanBreakables()) do          -- dùng cache chung, không quét thêm
+		if (b.pos - rp).Magnitude <= dist then return true end
+	end
+	return false
+end
+-- Khi đã phải đi: mỗi mục tiêu chỉ tele ĐÚNG 1 LẦN. Mục tiêu chưa đổi thì thôi,
+-- trừ khi bị xô văng quá TELE_FAR (đã ra khỏi tầm tap).
+local teleKey = nil
+local raidEntryZoneDone = false
+local function teleMazeZone()
+	if not (CFG.TELE_ZONE and inMaze()) then
+		teleKey = nil
+		raidEntryZoneDone = false
+		return
+	end
+	local root = hrp(); if not root then return end
+	-- Moi raid: tele thang toi breakable gan nhat dau tien. Neu breakable chua
+	-- load thi chua danh dau xong, vong sau se tiep tuc thu.
+	if not raidEntryZoneDone then
+		local nearest, nearestDist
+		for _, b in ipairs(scanBreakables()) do
+			local dist = (b.pos - root.Position).Magnitude
+			if not nearestDist or dist < nearestDist then
+				nearest, nearestDist = b, dist
+			end
+		end
+		if nearest then
+			raidEntryZoneDone = true
+			curZone = nil
+			local p = nearest.pos
+			teleKey = ("%d|%d|%d"):format(p.X // 1, p.Y // 1, p.Z // 1)
+			root.CFrame = CFrame.new(p + Vector3.new(0, 6, 0))
+			return
+		end
+	end
+	-- còn đồ để đập quanh đây -> ở yên. Xoá teleKey để lát nữa hết đồ là đi ngay.
+	if CFG.TELE_ONLY_EMPTY ~= false and breakableNear(root) then teleKey = nil return end
+	local cf, fallback = activeZoneCF()
+	if not cf then return end
+	local p = cf.Position
+	local key = ("%d|%d|%d"):format(p.X // 1, p.Y // 1, p.Z // 1)
+	local far = (root.Position - p).Magnitude > (tonumber(CFG.TELE_FAR) or 220)
+	if key == teleKey and not far then return end          -- tới rồi -> thôi
+	teleKey = key
+	root.CFrame = cf + Vector3.new(0, fallback and 6 or 4, 0)
+end
+local function raidComplete()
+	local raid = select(2, pcall(ClientRaid.GetCurrent))
+	if not raid then return false end
+	local ok, done = pcall(function() return raid:IsComplete() end)
+	if not (ok and done) then return false end
+	return #breakablePositions() == 0   -- xong that su = phong cuoi + het breakable
+end
+-- Nhan trung: kieu Auto Raid goc -> SendToPrizeRoom, duyet ChestDirectory + _ct.
+-- Tra ve true CHI khi da claim/settle HET chest (chua het -> false de vong sau claim lai).
+local function claimEggs()
+	if not (CFG.CLAIM_EGG and Portals) then return true end   -- tat claim -> coi nhu xong
+	if not inMaze() then return true end
+	pcall(function() Portals.SendToPrizeRoom() end)
+	local ct
+	for _ = 1, 25 do   -- cho token _ct server san sang (toi 5s)
+		local raid = select(2, pcall(ClientRaid.GetCurrent))
+		ct = raid and raid._ct
+		if ct then break end
+		task.wait(0.2)
+	end
+	if not (ct and Raids and Raids.ChestDirectory) then return false end
+	local total, settled = 0, 0
+	for id, v in pairs(Raids.ChestDirectory) do
+		if not v.Retired then
+			local ri = v.RequiredItem   -- egg dac biet (vd LeprechaunChest) can Fiesta Key
+			local skip = false
+			if ri then
+				if not CFG.OPEN_KEY_EGG then
+					skip = true   -- config tat -> khong dong con egg key
+				elseif not (select(2, pcall(function() return ri:HasAny() end))) then
+					skip = true   -- khong co key -> bo qua (mo cung fail)
+				end
+			end
+			if not skip then
+				total = total + 1
+				if (pcall(Net.Invoke, "Raids_CollectReward", id, ct)) then settled = settled + 1 end
+				task.wait(0.15)
+			end
+		end end
+	return settled >= total   -- da claim het chest DUOC PHEP mo chua
+end
+leaveToLobby = function()
+	-- The client contract's second argument bypasses the confirmation prompt.
+	pcall(function() Instancing.LeaveViaExit("FiestaMazePrizePortal", true) end)
+	for _ = 1, 16 do
+		if not inMaze() then break end
+		task.wait(0.25)
+	end
+	if inMaze() then pcall(function() Instancing.LeaveViaExit("FiestaMazeSpawnPortal", true) end) end
+	for _ = 1, 16 do
+		if not inMaze() then break end
+		task.wait(0.25)
+	end
+end
+
+-- ============================ CONTROLLER (2 mode + timer) ============================
+-- Lưu tiến độ ra file NoobHub/<user>.json (học cách của AutoWorldRank): out game
+-- rồi vào lại vẫn đúng mode và đúng số phút đã chạy, không bị reset về đầu.
+local HUB do
+	local Http = game:GetService("HttpService")
+	local DIR  = "NoobHub"
+	local FILE = DIR .. "/" .. LP.Name .. ".json"
+	local can  = typeof(isfolder) == "function" and typeof(writefile) == "function"
+	local data = {}
+	local function ensure() if not isfolder(DIR) then makefolder(DIR) end end
+	local function save()
+		if not can then return end
+		pcall(function()
+			ensure()
+			data.User, data.UserId = LP.Name, LP.UserId
+			data.LastPlayed = os.time()
+			writefile(FILE, Http:JSONEncode(data))
+		end)
+	end
+	if can then
+		pcall(function()
+			ensure()
+			if isfile(FILE) then
+				local d = Http:JSONDecode(readfile(FILE))
+				if type(d) == "table" then data = d end
+			end
+		end)
+	end
+	HUB = { Save = save, Data = function() return data end, Enabled = can }
+end
+
+-- Khôi phục mode + số giây đã chạy của mode đó. Dùng os.time() (giờ thật) để
+-- tính, os.clock() reset mỗi lần vào game nên không dùng lưu được.
+local challengeDisabled = (tonumber(CFG.CHALLENGE_MIN) or 10) <= 0
+local S = {
+	mode = challengeDisabled and "raid" or ((CFG.FIRST_MODE == "raid") and "raid" or "challenge"),
+	start = os.clock(),
+	-- Time_Challenge = 0 disables the whole mode timer; Time_Raid is then ignored.
+	noTime = challengeDisabled,
+}
+do
+	local d = HUB.Data()
+	local m = tostring(d.Mode or "")
+	local spent = tonumber(d.ModeSpent) or 0
+	local at = tonumber(d.ModeSavedAt) or 0
+	if (m == "raid" or m == "challenge") and CFG.RESUME ~= false then
+		S.mode = m
+		-- cộng cả thời gian offline? KHÔNG: chỉ giữ phần đã chạy trước khi out.
+		S.start = os.clock() - math.max(0, math.min(spent, 24 * 3600))
+		if at > 0 and os.time() - at > (tonumber(CFG.RESUME_MAX_GAP) or 3600) then
+			S.start = os.clock()          -- nghỉ quá lâu -> coi như bắt đầu lại mode
+		end
+	end
+end
+if challengeDisabled then
+	-- Do not resume a stale challenge state when challenge mode is disabled.
+	S.mode, S.start, S.noTime = "raid", os.clock(), true
+end
+CFG.mode = S.mode
+local function minsFor(m)
+	local configured = tonumber((m == "raid") and CFG.RAID_MIN or CFG.CHALLENGE_MIN)
+	if configured == nil then return (m == "raid") and 30 or 10 end
+	return configured
+end
+local function timeUp()
+	if S.noTime then return false end
+	local minutes = minsFor(S.mode)
+	return minutes > 0 and os.clock() - S.start >= minutes * 60
+end
+local function saveProgress()
+	local d = HUB.Data()
+	d.Mode = S.mode
+	d.ModeSpent = math.floor(math.max(0, os.clock() - S.start))
+	d.ModeSavedAt = os.time()
+	d.TotalTime = math.floor((tonumber(d.TotalTime) or 0) + (tonumber(CFG.SAVE_EVERY) or 15))
+	HUB.Save()
+end
+local function syncModeState()
+	CFG.mode = S.mode
+	if S.noTime then
+		CFG.modeEndsAt = nil
+		return
+	end
+	local minutes = minsFor(S.mode)
+	CFG.modeEndsAt = minutes > 0 and S.start + minutes * 60 or nil
+end
+local function switchTo(m)
+	S.mode = m; S.start = os.clock(); syncModeState()
+	pcall(saveProgress)                 -- đổi mode là ghi ngay, khỏi mất mốc
+end
+-- ghi định kỳ để out đột ngột vẫn còn tiến độ gần nhất
+if HUB.Enabled then
+	task.spawn(function()
+		while alive() do
+			task.wait(tonumber(CFG.SAVE_EVERY) or 15)
+			pcall(saveProgress)
+		end
+	end)
+end
+-- Challenge chua "done" khi: dang trong 1 luot danh boss (runLevel) HOAC con con
+-- Pinata breakable chua chet -> doi danh cho die roi moi doi mode.
+local function challengeBusy()
+	local s = chState
+	if type(s) == "table" and s.runLevel then return true end
+	if tapPinata then return true end
+	return false
+end
+-- Pinata đã kịch trần: nâng nữa cũng không lên. Cùng 2 điều kiện mà runChallenge
+-- dùng để ngừng arm lượt mới - level >= maxLevel (trần của game), hoặc
+-- displayLevel >= Limit_Level_Challenge (trần mình tự đặt).
+local function pinataMaxed()
+	local s = chState
+	if type(s) ~= "table" then return false end
+	local level, maxLevel = tonumber(s.level), tonumber(s.maxLevel)
+	if level and maxLevel and level >= maxLevel then return true end
+	local limit = tonumber(CFG.LIMIT_LEVEL_CHALLENGE) or 0
+	if limit > 0 then
+		local disp = tonumber(s.displayLevel) or ((level or -1) + 1)
+		if disp >= limit then return true end
+	end
+	return false
+end
+
+syncModeState()
+--== ANTI AFK (bê từ AutoWorldRank) ==--
+-- Idle Tracking của game nghe Signal "ResetIdleTimer" -> bắn tín hiệu đó là đủ.
+-- Thêm VirtualUser click lúc plr.Idled phòng Roblox tự kick 20 phút.
+local function antiAfk()
+	if CFG.ANTI_AFK == false then return end
+	for _, c in ipairs(ENV.__FIESTA_AFK or {}) do pcall(function() c:Disconnect() end) end
+	ENV.__FIESTA_AFK = {}
+	pcall(function()
+		local Sig = req("Signal")
+		local UIS = game:GetService("UserInputService")
+		local C = ENV.__FIESTA_AFK
+		if Sig then
+			C[#C + 1] = UIS.WindowFocusReleased:Connect(function() pcall(Sig.Fire, "ResetIdleTimer") end)
+			task.spawn(function()
+				while alive() and CFG.ANTI_AFK ~= false do
+					task.wait(60)
+					pcall(Sig.Fire, "ResetIdleTimer")
+				end
+			end)
+		end
+		C[#C + 1] = LP.Idled:Connect(function()
+			if Sig then pcall(Sig.Fire, "ResetIdleTimer") end
+			local cam = workspace.CurrentCamera; if not cam then return end
+			local sid = setidentity or set_thread_identity or setthreadidentity
+			if sid then pcall(sid, 8) end
+			pcall(function()
+				local vu = game:GetService("VirtualUser")
+				vu:CaptureController()
+				vu:Button2Down(Vector2.new(0, 0), cam.CFrame)
+				task.wait(0.1)
+				vu:Button2Up(Vector2.new(0, 0), cam.CFrame)
+			end)
+			if sid then pcall(sid, 2) end
+		end)
+	end)
+end
+
+pcall(gamePerfSwitches); orbCollect(); disablePet(); rankBuffLoop(); webhookLoop(); mailLoop(); fpsLoop(); pcall(antiAfk)
+
+-- Tapper (ca lobby & maze)
+task.spawn(function()
+	local last = os.clock()
+	while alive() do
+		local dt = os.clock() - last; last = os.clock()
+		pcall(runTap, dt)
+		task.wait(tonumber(CFG.TAP_STEP) or 0.05)
+	end
+end)
+-- Di chuyen: challenge -> tam zone lobby; raid -> tam break zone maze
+task.spawn(function()
+	while alive() do
+		if padBusy then                              -- đang ra pad -> đừng kéo về
+		elseif S.mode == "challenge" and inLobby() and CFG.TELE_ZONE then
+			local root = hrp(); local pos = root and lobbyZonePos()
+			if root and pos and (root.Position - pos).Magnitude > (tonumber(CFG.TELE_NEAR) or 15) then
+				root.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
+			end
+		elseif S.mode == "raid" then
+			pcall(teleMazeZone)
+		end
+		-- mỗi mục tiêu chỉ tele 1 lần nên không cần chạy dày; 0.15s là phí CPU
+		task.wait(tonumber(CFG.MOVE_STEP) or 0.5)
+	end
+end)
+-- Vong dieu khien mode
+task.spawn(function()
+	while alive() do
+		if S.mode == "challenge" then
+			if inMaze() then leaveToLobby() end   -- lo dang o maze -> ve lobby da
+			pcall(enterLobby)
+			if not timeUp() then pcall(runChallenge) end   -- het gio: ngung arm luot moi, danh not luot cu
+			pcall(runUpgrade)
+			-- DONE khi: (het gio HOAC pinata da kich tran) + dang o lobby + khong
+			-- con dang danh boss challenge. Kich tran ma van dung do het gio la
+			-- phi thoi gian, vi luc do runChallenge khong arm luot moi nua.
+			local maxed = pinataMaxed()
+			if maxed then
+				S.noTime = true
+				CFG.modeEndsAt = nil
+			end
+			local done = timeUp() or maxed
+			if done and inLobby() and not challengeBusy() then switchTo("raid") end
+		else -- raid
+			if inMaze() then
+				if raidProgressStalled() then
+					-- Raid khong tang progress trong 180s: bo luot loi,
+					-- ve lobby, tranh thu mua upgrade, roi tao lai ngay.
+					leaveToLobby()
+					local enteredLobby = select(2, pcall(enterLobby))
+					if enteredLobby and inLobby() then
+						pcall(runUpgrade, true)
+						pcall(startRaid)
+					end
+				elseif raidComplete() then
+					if claimEggs() then              -- DONE chi khi da claim HET trung
+						leaveToLobby()               -- ve lobby (retry hay doi mode)
+						if timeUp() then
+							switchTo("challenge")
+						else
+							-- Leave xong thi vao lai lobby va tao raid ngay trong cung luot;
+							-- tranh thu mua upgrade ngay tai lobby, roi tao raid moi.
+							local enteredLobby = select(2, pcall(enterLobby))
+							if enteredLobby and inLobby() then
+								pcall(runUpgrade, true)
+								pcall(startRaid)
+							end
+						end
+					end
+					-- claim chua het -> vong sau claim lai (khong roi phong thuong)
+				end
+				-- chua xong: tele thread dang don break zone, cho tiep
+			else
+				if timeUp() then
+					switchTo("challenge")            -- het gio, dang o lobby -> doi mode
+				else
+					local enteredLobby = select(2, pcall(enterLobby))
+					if enteredLobby and inLobby() then
+						pcall(startRaid)                 -- chi tao khi da vao lobby that
+					end
+				end
+			end
+		end
+		-- Yield mot frame de tranh vong lap nong; khong con delay co dinh 2 giay.
+		task.wait()
+	end
+end)
+-- HUD chạy trong HÀM RIÊNG: Luau giới hạn 200 local mỗi hàm, để chung thân
+-- file là tràn register ("Out of local registers ... exceeded limit 200").
+task.spawn(function()
+	--// Pinata Fiesta - HUD (hoc tu AutoWorldRank + PvC, BO check rank).
+	--//   STATS: Maze Level | Fiesta Coins | Fiesta Orb | Pinata Level
+	--//   MAZE UPGRADE: hien tier/max cac upgrade Fiesta (mua auto ben Fiesta_All)
+	--//   EQUIPPED PETS + COUNT ITEMS (inventory giu trong RAM giong AutoWorldRank)
+	--// Chay kem Fiesta_All.lua (doc ENV._PinataMaze de show mode). Ngan + toi uu.
+	local UIS     = game:GetService("UserInputService")
+	local Tween   = game:GetService("TweenService")
+	local Cur        = Currency
+	local Pet        = PetCmds
+	local FiestaCredits = req("Util.FiestaCredits")
+	local Save       = req("Client.Save")
+	local ItemMods = {
+		Pet = PetItem, Potion = PotionItem, Fruit = FruitItem, Misc = MiscItem, Enchant = EnchantItem,
+		-- lootbox / quà event: Class = "Lootbox", Id = tên trong __DIRECTORY.Lootboxes
+		Lootbox = req("Items.LootboxItem"), Currency = req("Items.CurrencyItem"),
+	}
+
+	-- so lon -> chu ngan (12.3M ...)
+	local SUF = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" }
+	local function short(n)
+		n = tonumber(n) or 0
+		local i = 1
+		while math.abs(n) >= 1000 and i < #SUF do n = n / 1000; i = i + 1 end
+		return (i == 1) and tostring(math.floor(n)) or string.format("%.2f%s", n, SUF[i])
+	end
+	local function curAmt(id) local ok, v = pcall(Cur.Get, id); return ok and tonumber(v) or 0 end
+	local function curIcon(id) local ok, it = pcall(Cur.GetItem, id); return (ok and it) and select(2, pcall(function() return it:GetIcon() end)) or "" end
+
+	-- ===== DU LIEU =====
+	local SHORT = { FiestaDamage = "Damage", FiestaSmashSpeed = "Speed", FiestaPets = "Pets",
+		FiestaKeyDrops = "Keys", FiestaBetterLoot = "Loot", FiestaMoreCurrency = "Coins+", FiestaXP = "XP" }
+	local function upgList()
+		local out = {}
+		local ids = (type(CFG.UPGRADES) == "table" and #CFG.UPGRADES > 0) and CFG.UPGRADES
+			or { "FiestaDamage", "FiestaSmashSpeed", "FiestaPets", "FiestaKeyDrops" }
+		for _, id in ipairs(ids) do
+			local dir = EventUpgDir and EventUpgDir[id]
+			if type(dir) == "table" and dir.TierPowers then
+				local tier = tonumber((select(2, pcall(EventUpg.GetTier, dir)))) or 0
+				out[#out + 1] = { icon = dir.Icon, tier = tier, max = #dir.TierPowers, name = SHORT[id] or id }
+			end
+		end
+		return out
+	end
+	local function equipList()
+		local g, total = {}, 0
+		for _, it in pairs(select(2, pcall(Pet.GetEquippedItems)) or {}) do
+			local id = tostring(select(2, pcall(function() return it:GetId() end)))
+			local e = g[id]
+			if e then e.count = e.count + 1
+			else g[id] = { id = id, count = 1, icon = select(2, pcall(function() return it:GetIcon() end)) } end
+			total = total + 1
+		end
+		local out = {}
+		for _, e in pairs(g) do out[#out + 1] = e end
+		table.sort(out, function(a, b) return a.count > b.count end)
+		return out, total
+	end
+	-- COUNT_ITEMS = { {Class="Misc", Id="Fiesta Key"}, {Class="Pet", Id="All Huges"}, ... }
+	local function ruleMatch(want, it)
+		local id = select(2, pcall(function() return it:GetId() end))
+		local wid = want.Id
+		if wid and wid ~= "" and wid ~= "All" then
+			if wid == "All Huges" then
+				local h = select(2, pcall(function() return it:IsHuge() or it:IsTitanic() or it:IsGargantuan() end))
+				if not h then return false end
+			elseif tostring(wid) ~= tostring(id) then return false end
+		end
+		if want.Tier ~= nil then
+			local tier = tonumber((select(2, pcall(function() return it:GetTier() end)))) or 0
+			if tier ~= tonumber(want.Tier) then return false end
+		end
+		return true, tostring(id)
+	end
+	local countCacheAt, countCache = -1, {}
+	local function countList()
+		local cfg = CFG.COUNT_ITEMS or { { Class = "Misc", Id = "Fiesta Key" }, { Class = "Pet", Id = "All Huges" } }
+		if countCacheAt == invAt and countCache.cfg == cfg then return countCache end
+		local g = {}
+		for ri, want in ipairs(cfg) do
+			local cls = ItemMods[tostring(want.Class or "")]
+			if cls then
+				local expand = not want.Id or want.Id == "" or want.Id == "All" or want.Id == "All Huges"
+				for _, it in pairs(each(cls)) do
+					local ok, id = ruleMatch(want, it)
+					if ok then
+						local amt = math.max(0, tonumber((select(2, pcall(function() return it:GetAmount() end)))) or 1)
+						if amt > 0 then
+							local key = ri .. (expand and ("|" .. id) or "")
+							local e = g[key]
+							if e then e.count = e.count + amt
+							else g[key] = { id = id, count = amt, icon = select(2, pcall(function() return it:GetIcon() end)) } end
+						end
+					end
+				end
+			end
+		end
+		local out = { cfg = cfg }
+		for _, e in pairs(g) do out[#out + 1] = e end
+		table.sort(out, function(a, b) return a.count > b.count end)
+		countCacheAt, countCache = invAt, out
+		return out
+	end
+
+	-- Exact Fiesta ladder contract from FiestaCredits + Fiesta_LadderState.
+	local ladderState
+	pcall(function()
+		Net.Fired("Fiesta_LadderState"):Connect(function(state)
+			if type(state) == "table" then ladderState = state end
+		end)
+		Net.Fired("Fiesta_LadderAward"):Connect(function(award)
+			if type(award) ~= "table" then return end
+			ladderState = ladderState or {}
+			for id, amount in pairs(award) do
+				if type(amount) == "number" and amount > 0 then ladderState[id] = (tonumber(ladderState[id]) or 0) + amount end
+			end
+		end)
+		Net.Fired("Fiesta_LadderReset"):Connect(function()
+			ladderState = ladderState or {}
+			for _, entry in ipairs(FiestaCredits.Ladder) do ladderState[entry.Id] = 0 end
+		end)
+	end)
+	local function fiestaRewardIcon(entry)
+		if not (Items and entry and entry.RewardId) then return "" end
+		local ok, icon = pcall(function()
+			local item = entry.RewardKind == "Lootbox" and Items.Lootbox(entry.RewardId) or Items.Pet(entry.RewardId)
+			return item:GetIcon()
+		end)
+		return ok and type(icon) == "string" and icon or ""
+	end
+	local function getGoalRows()
+		if not (FiestaCredits and Save) then return {} end
+		local save = select(2, pcall(Save.Get))
+		local out = {}
+		for _, entry in ipairs(FiestaCredits.Ladder) do
+			local progress = ladderState and ladderState[entry.Id]
+			if type(progress) ~= "number" and type(save) == "table" then progress = save[entry.SaveKey] end
+			if type(progress) == "number" then
+				out[#out + 1] = {
+					label = entry.DisplayName, progress = progress, amount = entry.CreditsRequired,
+					icon = fiestaRewardIcon(entry), rewardId = entry.RewardId,
+				}
+			end
+		end
+		return out
+	end
+
+	-- ===== HUD (uiMake + panel + cell, hoc AutoWorldRank/PvC) =====
+	local function uiMake(class, props, parent)
+		local o = Instance.new(class)
+		for k, v in pairs(props or {}) do o[k] = v end
+		o.Parent = parent; return o
+	end
+	local RAINBOW = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 90, 90)),
+		ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255, 190, 70)),
+		ColorSequenceKeypoint.new(0.50, Color3.fromRGB(110, 255, 130)),
+		ColorSequenceKeypoint.new(0.75, Color3.fromRGB(80, 200, 255)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(200, 120, 255)),
+	})
+	local grads = {}
+	local function rainbow(inst, tr)
+		local g = uiMake("UIGradient", { Color = RAINBOW }, inst)
+		if tr then g.Transparency = NumberSequence.new(tr) end
+		grads[#grads + 1] = g; return g
+	end
+
+	local HUD_W, HUD_H = 700, 600
+	local PG = LP:WaitForChild("PlayerGui")
+	local old = PG:FindFirstChild("Fiesta_HUD"); if old then old:Destroy() end
+	local gui = uiMake("ScreenGui", { Name = "Fiesta_HUD", ResetOnSpawn = false, IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling }, PG)
+	local root = uiMake("Frame", { Size = UDim2.fromOffset(HUD_W, HUD_H), Position = UDim2.fromOffset(20, 90),
+		BackgroundColor3 = Color3.fromRGB(14, 15, 20), BorderSizePixel = 0 }, gui)
+	uiMake("UICorner", { CornerRadius = UDim.new(0, 12) }, root)
+	rainbow(uiMake("UIStroke", { Thickness = 2.5 }, root))
+	local scale = uiMake("UIScale", { Scale = 1 }, root)
+	local function fit()
+		local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize
+		if not vp or vp.X < 1 then return end
+		scale.Scale = math.clamp(math.min(vp.X / (HUD_W + 40), vp.Y / (HUD_H + 120)), 0.5, 1)
+	end
+	pcall(fit)
+	if workspace.CurrentCamera then
+		workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function() pcall(fit) end)
+	end
+
+	-- header
+	local header = uiMake("Frame", { Size = UDim2.new(1, 0, 0, 46), BackgroundColor3 = Color3.fromRGB(22, 23, 31),
+		BorderSizePixel = 0 }, root)
+	uiMake("UICorner", { CornerRadius = UDim.new(0, 12) }, header)
+	rainbow(header, 0.85)
+	local avatar = uiMake("ImageLabel", { Size = UDim2.fromOffset(32, 32), Position = UDim2.fromOffset(10, 7),
+		BackgroundColor3 = Color3.fromRGB(35, 36, 48), BorderSizePixel = 0,
+		Image = ("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"):format(LP.UserId) }, header)
+	uiMake("UICorner", { CornerRadius = UDim.new(1, 0) }, avatar)
+	uiMake("TextLabel", { Size = UDim2.fromOffset(240, 18), Position = UDim2.fromOffset(50, 6), BackgroundTransparency = 1,
+		Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = Color3.new(1, 1, 1), Text = LP.DisplayName }, header)
+	local subLbl = uiMake("TextLabel", { Size = UDim2.new(1, -100, 0, 14), Position = UDim2.fromOffset(50, 24),
+		BackgroundTransparency = 1, Font = Enum.Font.Gotham, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = Color3.fromRGB(150, 152, 175), Text = "MODE: STANDBY  |  SWITCHING" }, header)
+	local minBtn = uiMake("TextButton", { Size = UDim2.fromOffset(28, 28), Position = UDim2.new(1, -38, 0, 9),
+		BackgroundColor3 = Color3.fromRGB(40, 42, 56), BorderSizePixel = 0, Font = Enum.Font.GothamBold,
+		TextSize = 18, TextColor3 = Color3.new(1, 1, 1), Text = "-" }, header)
+	uiMake("UICorner", { CornerRadius = UDim.new(0, 8) }, minBtn)
+
+	local body = uiMake("Frame", { Size = UDim2.new(1, -16, 1, -56), Position = UDim2.fromOffset(8, 50),
+		BackgroundTransparency = 1 }, root)
+	local function panel(x, y, w, h, titleText)
+		local f = uiMake("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h),
+			BackgroundColor3 = Color3.fromRGB(21, 22, 30), BorderSizePixel = 0 }, body)
+		uiMake("UICorner", { CornerRadius = UDim.new(0, 10) }, f)
+		rainbow(uiMake("UIStroke", { Thickness = 1.4, Transparency = 0.35 }, f))
+		local title = uiMake("TextLabel", { Size = UDim2.new(1, -16, 0, 14), Position = UDim2.fromOffset(8, 6),
+			BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 11,
+			TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Color3.new(1, 1, 1), Text = titleText }, f)
+		rainbow(title)
+		local inner = uiMake("ScrollingFrame", { Position = UDim2.fromOffset(6, 24), Size = UDim2.new(1, -12, 1, -30),
+			BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 3, CanvasSize = UDim2.new(),
+			AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarImageColor3 = Color3.fromRGB(90, 92, 120) }, f)
+		return inner, title
+	end
+	local statsBox = panel(0, 0, 338, 150, "STATS")
+	local upgBox = panel(346, 0, 338, 150, "MAZE UPGRADE")
+	local equipBox = panel(0, 158, 684, 152, "EQUIPPED PETS")
+	local countBox, countTitle = panel(0, 318, 684, 120, "COUNT ITEMS")
+	local goalBox, goalTitle = panel(0, 446, 684, 94, "FIESTA GOALS")
+	local function grid(p, w, h)
+		uiMake("UIGridLayout", { CellSize = UDim2.fromOffset(w, h), CellPadding = UDim2.fromOffset(5, 5),
+			SortOrder = Enum.SortOrder.LayoutOrder }, p)
+	end
+	grid(upgBox, 76, 46); grid(equipBox, 52, 46); grid(countBox, 52, 46); grid(goalBox, 130, 62)
+	uiMake("UIListLayout", { Padding = UDim.new(0, 6) }, statsBox)
+
+	local function statRow(label)
+		local row = uiMake("Frame", { Size = UDim2.new(1, 0, 0, 24), BackgroundTransparency = 1 }, statsBox)
+		uiMake("TextLabel", { Position = UDim2.fromOffset(2, 0), Size = UDim2.new(0.5, 0, 1, 0), BackgroundTransparency = 1,
+			Font = Enum.Font.Gotham, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left,
+			TextColor3 = Color3.fromRGB(155, 158, 180), Text = label }, row)
+		return uiMake("TextLabel", { Position = UDim2.new(0.5, 0, 0, 0), Size = UDim2.new(0.5, -4, 1, 0),
+			BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 13,
+			TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.new(1, 1, 1), Text = "-" }, row)
+	end
+	local vMaze = statRow("Maze Level")
+	local vCoins = statRow("Fiesta Coins")
+	local vOrb = statRow("Fiesta Orb")
+	local vPinata = statRow("Pinata Level")
+
+	local function trim(parent, used)
+		local i = used + 1
+		while true do local c = parent:FindFirstChild("C" .. i); if not c then break end c.Visible = false; i = i + 1 end
+	end
+	local function cell(parent, index, icon, corner, bottom)
+		local box = parent:FindFirstChild("C" .. index)
+		if not box then
+			box = uiMake("Frame", { Name = "C" .. index, BackgroundColor3 = Color3.fromRGB(30, 31, 42),
+				BorderSizePixel = 0 }, parent)
+			uiMake("UICorner", { CornerRadius = UDim.new(0, 8) }, box)
+			uiMake("UIStroke", { Thickness = 1, Transparency = 0.55, Color = Color3.fromRGB(105, 108, 138) }, box)
+			uiMake("ImageLabel", { Name = "Icon", Size = UDim2.new(1, -14, 0, 30), Position = UDim2.fromOffset(7, 2),
+				BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit }, box)
+			uiMake("TextLabel", { Name = "Corner", Size = UDim2.new(1, -4, 0, 12), Position = UDim2.fromOffset(2, 1),
+				ZIndex = 3, BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 11,
+				TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(255, 226, 120),
+				TextStrokeTransparency = 0.35 }, box)
+			uiMake("TextLabel", { Name = "Bottom", Size = UDim2.new(1, -4, 0, 12), Position = UDim2.new(0, 2, 1, -13),
+				BackgroundTransparency = 1, Font = Enum.Font.Gotham, TextSize = 10, TextColor3 = Color3.fromRGB(175, 178, 200),
+				TextTruncate = Enum.TextTruncate.AtEnd }, box)
+		end
+		box.LayoutOrder = index; box.Visible = true
+		box.Icon.Image = tostring(icon or ""); box.Corner.Text = tostring(corner or ""); box.Bottom.Text = tostring(bottom or "")
+	end
+	local function goalCell(index, title, progress, amount, icon)
+		local row = goalBox:FindFirstChild("G" .. index)
+		if not row then
+			row = uiMake("Frame", { Name = "G" .. index, BackgroundColor3 = Color3.fromRGB(30, 31, 42), BorderSizePixel = 0 }, goalBox)
+			uiMake("UICorner", { CornerRadius = UDim.new(0, 8) }, row)
+			uiMake("UIStroke", { Thickness = 1, Transparency = 0.55, Color = Color3.fromRGB(105, 108, 138) }, row)
+			uiMake("ImageLabel", { Name = "Icon", Size = UDim2.fromOffset(48, 48), Position = UDim2.fromOffset(5, 7),
+				BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit }, row)
+			uiMake("TextLabel", { Name = "Title", Position = UDim2.fromOffset(57, 7), Size = UDim2.new(1, -61, 0, 24), BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold, TextSize = 10, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+				TextYAlignment = Enum.TextYAlignment.Center, TextColor3 = Color3.new(1, 1, 1) }, row)
+			uiMake("TextLabel", { Name = "Value", Position = UDim2.fromOffset(57, 34), Size = UDim2.new(1, -61, 0, 18), BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Color3.fromRGB(255, 226, 120) }, row)
+		end
+		row.LayoutOrder, row.Visible = index, true
+		local image = tostring(icon or "")
+		row.Icon.Image = image:match("^%d+$") and ("rbxassetid://" .. image) or image
+		row.Title.Text = tostring(title or "Fiesta Goal")
+		row.Value.Text = ("%s/%s points"):format(short(progress), short(amount))
+	end
+	local function trimGoals(used)
+		local i = used + 1
+		while true do local row = goalBox:FindFirstChild("G" .. i); if not row then break end row.Visible = false; i = i + 1 end
+	end
+
+	-- ===== REFRESH =====
+	local function refresh()
+		vMaze.Text = short((select(2, pcall(RaidCmds.GetDifficultyLevel))) or 0)
+		vCoins.Text = short(curAmt("FiestaCoins"))
+		vOrb.Text = short(curAmt("FiestaOrbs"))
+		local pinataRaw = tonumber(chState and (chState.level or chState.Level))
+		vPinata.Text = short(tonumber(chState and chState.displayLevel) or (pinataRaw and pinataRaw + 1) or tonumber(CFG.pinataLevel) or 0)
+		if pinataMaxed() then
+			S.noTime = true
+			CFG.modeEndsAt = nil
+		end
+
+		local up = upgList()
+		for i, u in ipairs(up) do cell(upgBox, i, u.icon, ("%d/%d"):format(u.tier, u.max), u.name) end
+		trim(upgBox, #up)
+
+		local eq, eqTot = equipList()
+		for i, e in ipairs(eq) do cell(equipBox, i, e.icon, "x" .. e.count, e.id) end
+		trim(equipBox, #eq)
+
+		local ct = countList()
+		for i, e in ipairs(ct) do cell(countBox, i, e.icon, "x" .. short(e.count), e.id) end
+		trim(countBox, #ct)
+		if countTitle then countTitle.Text = ("COUNT ITEMS  (%d)"):format(#ct) end
+		local goals = getGoalRows()
+		for i, goal in ipairs(goals) do goalCell(i, goal.label, goal.progress, goal.amount, goal.icon) end
+		trimGoals(#goals)
+		if goalTitle then goalTitle.Text = ("FIESTA GOALS  (%d)"):format(#goals) end
+
+		local mode = tostring(CFG.mode or "standby"):upper()
+		local left = math.max(0, (tonumber(CFG.modeEndsAt) or 0) - os.clock())
+		local countdown = S.noTime and "NO LIMIT"
+			or ((left > 0) and ("SWITCH IN %02d:%02d"):format(math.floor(left / 60), math.floor(left % 60)) or "SWITCHING")
+		subLbl.Text = ("MODE: %s  |  %s  |  EQUIP %d"):format(mode, countdown, eqTot)
+	end
+
+	task.spawn(function()
+		while alive() and gui.Parent do
+			if body.Visible then pcall(refresh) end
+			task.wait(1)
+		end
+	end)
+	task.spawn(function()   -- rainbow chay
+		while alive() and gui.Parent do
+			if body.Visible then
+				local r = os.clock() * 90 % 360
+				for i = #grads, 1, -1 do
+					local g = grads[i]
+					if g.Parent then g.Rotation = (r + i * 7) % 360 else table.remove(grads, i) end
+				end
+			end
+			task.wait(tonumber(CFG.HUD_FX_STEP) or 0.5)   -- gradient chỉ là hiệu ứng, 0.08s quá phí
+		end
+	end)
+
+	-- minimize
+	local minimized = false
+	minBtn.MouseButton1Click:Connect(function()
+		minimized = not minimized
+		body.Visible = not minimized
+		minBtn.Text = minimized and "+" or "-"
+		Tween:Create(root, TweenInfo.new(0.2, Enum.EasingStyle.Quad),
+			{ Size = minimized and UDim2.fromOffset(HUD_W, 46) or UDim2.fromOffset(HUD_W, HUD_H) }):Play()
+	end)
+	-- keo tha
+	do
+		local dragging, startInput, startPos
+		header.InputBegan:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+				dragging, startInput, startPos = true, i.Position, root.Position
+				i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then dragging = false end end)
+			end
+		end)
+		UIS.InputChanged:Connect(function(i)
+			if dragging and alive() and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+				local d = i.Position - startInput
+				root.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
+			end
+		end)
+	end
+end)
+end)
+if not __FIESTA_OK then
+	local env = (getgenv and getgenv()) or _G
+	if type(env) == "table" then env.__FIESTA_LAST_ERROR = tostring(__FIESTA_ERROR) end
+	pcall(function() warn("[Fiesta_All] fatal: " .. tostring(__FIESTA_ERROR)) end)
+end
