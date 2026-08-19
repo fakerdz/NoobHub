@@ -11,6 +11,9 @@ local OK, ERR = pcall(function()
 		for _,c in pairs(ENV.__FIESTA_CONN) do pcall(function() c:Disconnect() end) end
 	end
 	local CONN={}; ENV.__FIESTA_CONN=CONN
+	-- Trỏ chuyển tiếp: mấy chỗ nằm TRƯỚC zoneReady() vẫn hỏi được nó qua biến này.
+	-- Chưa gán (lúc script mới nạp) thì coi như CHƯA sẵn sàng -> chặn.
+	local zoneReadyRef
 	local function reg(name,signal,fn)
 		local old=CONN[name]; if old then pcall(function() old:Disconnect() end) end
 		local ok,c=pcall(function() return signal:Connect(fn) end)
@@ -38,7 +41,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Zone_Min="ZONE_MIN",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Hard="STUB_HARD",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Zone_Min="ZONE_MIN",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Hard="STUB_HARD",Stub_Size="STUB_SIZE",Stub_NoCollide="STUB_NOCOLLIDE",Stub_Anchor="STUB_ANCHOR",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +57,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -114,6 +117,7 @@ local OK, ERR = pcall(function()
 		-- Giữ đúng contract 3 giá trị: model, stage hiện tại, tổng stage. Stage số
 		-- mấy không còn ý nghĩa hình ảnh nhưng frontend so nó để biết có đổi stage.
 		BUtil.GetStage=function(...)
+			if zoneReadyRef and not zoneReadyRef() then return orig(...) end   -- chưa sẵn sàng: trả hàng thật
 			local ok,_,cur,total=pcall(orig,...)
 			if not ok then return stub,1,1 end
 			return stub,cur or 1,total or 1
@@ -131,12 +135,14 @@ local OK, ERR = pcall(function()
 	--   Transparency / CastShadow trên part
 	--   .Enabled=false cho ParticleEmitter, Trail, Light, Beam
 	-- Không Destroy gì, không đổi Size, không Anchored, không CanCollide.
-	-- Muốn lại kiểu cũ thì Stub_Hard=true - nhưng nó là cái làm văng, cân nhắc.
+	-- MẶC ĐỊNH: kiểu cũ (Stub_Hard). Đã thử tắt Compact lẫn GetStage đều vẫn văng,
+	-- nên hai thứ này KHÔNG phải nguyên nhân - quay về bản nén mạnh cho nhẹ máy.
+	-- Stub_Hard=false -> bản hiền: chỉ ẩn, không Destroy, không đổi vật lý.
 	local function compactBreakable(model)
 		if CFG.STUB_COMPACT==false or CFG.STUB_BREAKABLE==false or not model or not model:IsA("Model") then return end
 		local part=model.PrimaryPart
 		if not part or not part:IsA("BasePart") then return end
-		if CFG.STUB_HARD==true then
+		if CFG.STUB_HARD~=false then
 			pcall(function()
 				for _,c in ipairs(model:GetChildren()) do if c~=part then c:Destroy() end end
 				for _,c in ipairs(part:GetChildren()) do c:Destroy() end
@@ -147,6 +153,12 @@ local OK, ERR = pcall(function()
 		end
 		pcall(function()
 			part.Transparency,part.CastShadow=1,false
+			-- Ba thứ dưới đây ĐỀU là sửa vật lý của part server sở hữu, mặc định
+			-- TẮT. Bật từng cái một để biết server chịu được tới đâu - đừng bật
+			-- cả ba rồi lại không biết cái nào có tội (đúng lỗi mình đã mắc).
+			if CFG.STUB_SIZE==true then part.Size=Vector3.new(1,1,1) end
+			if CFG.STUB_NOCOLLIDE==true then part.CanCollide,part.CanTouch,part.CanQuery=false,false,false end
+			if CFG.STUB_ANCHOR==true then part.Anchored,part.Massless=true,true end
 			local function hide(x)
 				if x:IsA("ParticleEmitter") or x:IsA("Trail") or x:IsA("Beam") or x:IsA("Light") then x.Enabled=false
 				elseif x:IsA("BasePart") and x~=part then x.Transparency,x.CastShadow=1,false end
@@ -249,6 +261,28 @@ local OK, ERR = pcall(function()
 			if m and m.Parent then compactBreakable(m) end
 		end
 		if stubI>=stubN then stubQ,stubN,stubI={},0,0 end
+	end
+	zoneReadyRef=zoneReady
+	-- ══ LISTENER CŨNG PHẢI QUA CỔNG ══════════════════════════════════════════
+	-- Handler sự kiện KHÔNG đi qua scheduler nên cổng ở vòng lặp job không với
+	-- tới. Lúc vào raid đây đúng là chỗ bão đổ vào: mỗi breakable stream về là
+	-- một lần gọi. Nên chưa zoneReady() thì chỉ CẤT tham số lại, xong mới xử.
+	-- Giữ nguyên thứ tự sự kiện - cache breakable phụ thuộc thứ tự Created/Stage.
+	local pendQ,pendN,pendI={},0,0
+	local function drainPending()
+		if pendI>=pendN then return end
+		while pendI<pendN do
+			pendI=pendI+1; local e=pendQ[pendI]; pendQ[pendI]=nil
+			if e then pcall(e.fn,table.unpack(e.a,1,e.n)) end
+		end
+		pendQ,pendN,pendI={},0,0
+	end
+	local function regGated(name,signal,fn)
+		return reg(name,signal,function(...)
+			if zoneReady() then return fn(...) end
+			if pendN-pendI>=num("PEND_MAX",3000) then return end
+			pendN=pendN+1; pendQ[pendN]={fn=fn,a=table.pack(...),n=select("#",...)}
+		end)
 	end
 	local function gateOk()
 		local want=tostring(CFG.GATE_INSTANCE or "FiestaMaze")
@@ -1057,7 +1091,7 @@ end   -- LOW_GRAPHIC
 	local INV, invDirty, invAt={},true,0
 	local function all(cls) local ok,v=pcall(function() return cls and cls:All() end); return ok and v or {} end
 	local function each(cls) if invDirty or clock()-invAt>5 then table.clear(INV); invDirty=false; invAt=clock() end; INV[cls]=INV[cls] or all(cls); return INV[cls] end
-	pcall(function() reg("itemsUpdate",N.Fired("Items: Update"),function() invDirty=true end) end)
+	pcall(function() regGated("itemsUpdate",N.Fired("Items: Update"),function() invDirty=true end) end)
 	local function n1(fn,...) if type(fn)~="function" then return nil end; local ok,v=pcall(fn,...); return ok and tonumber(v) or nil end
 
 	local S={mode=(num("CHALLENGE_MIN",10)<=0 or CFG.FIRST_MODE=="raid") and "raid" or "challenge",modeAt=clock(),phase="boot",wanted=nil,wantedAt=0,nextAction=0,pinata=tonumber(CFG.pinataLevel) or 0,claim=nil,claimAt=0,claimIndex=0,lastBeat=clock(),enterAt=-1e9,raidCreateAt=-1e9,eternalAt=-1e9,rejoinAt=-1e9}
@@ -1132,9 +1166,9 @@ end   -- LOW_GRAPHIC
 		return SCAN.list,SCAN.bossN>0
 	end
 	if B then
-		reg("breakableCreated",B.Created,function(row) lightenBreakable(row); cacheBreakable(row) end)
-		reg("breakableStage",B.StageChange,function(row) lightenBreakable(row); cacheBreakable(row) end)
-		reg("breakableCleanup",B.Cleanup,dropCachedBreakable)
+		regGated("breakableCreated",B.Created,function(row) lightenBreakable(row); cacheBreakable(row) end)
+		regGated("breakableStage",B.StageChange,function(row) lightenBreakable(row); cacheBreakable(row) end)
+		regGated("breakableCleanup",B.Cleanup,dropCachedBreakable)
 	end
 	local function refreshTargets()
 		local r=root(); if not r then return end
@@ -1188,7 +1222,7 @@ end   -- LOW_GRAPHIC
 
 	local chState,challengeAt,challengeReturnCF=nil,-1e9,nil
 	local challengePadReadyAt,challengeTry,challengeConfirmUntil=-1e9,0,-1e9
-	pcall(function() reg("challengeState",N.Fired("PinataChallenge_State"),function(s) if type(s)=="table" then chState=s; S.pinata=tonumber(s.displayLevel) or ((tonumber(s.level) or -1)+1) end end) end)
+	pcall(function() regGated("challengeState",N.Fired("PinataChallenge_State"),function(s) if type(s)=="table" then chState=s; S.pinata=tonumber(s.displayLevel) or ((tonumber(s.level) or -1)+1) end end) end)
 	local function pinataLevel() local n=tonumber(select(2,pcall(FiestaLevel and FiestaLevel.Get))) or S.pinata; if chState then n=tonumber(chState.displayLevel) or ((tonumber(chState.level) or -1)+1) end; S.pinata=n or 0; CFG.pinataLevel=S.pinata; return S.pinata end
 	local function pinataMax() if not chState then return false end; local l,m=tonumber(chState.level),tonumber(chState.maxLevel); if l and m and l>=m then return true end; local lim=num("LIMIT_LEVEL_CHALLENGE",0); return lim>0 and (tonumber(chState.displayLevel) or (l and l+1 or 0))>=lim end
 	local function zonePos()
@@ -2010,8 +2044,8 @@ end   -- LOW_GRAPHIC
 		end
 		local ladderState
 		pcall(function()
-			reg("ladderState",N.Fired("Fiesta_LadderState"),function(state) if type(state) == "table" then ladderState = state end end)
-			reg("ladderAward",N.Fired("Fiesta_LadderAward"),function(award)
+			regGated("ladderState",N.Fired("Fiesta_LadderState"),function(state) if type(state) == "table" then ladderState = state end end)
+			regGated("ladderAward",N.Fired("Fiesta_LadderAward"),function(award)
 				if type(award) ~= "table" then return end
 				ladderState = ladderState or {}
 				for id, amount in pairs(award) do if type(amount) == "number" and amount > 0 then ladderState[id] = (tonumber(ladderState[id]) or 0) + amount end end
@@ -2283,6 +2317,7 @@ end   -- LOW_GRAPHIC
 	task.spawn(function()
 		while alive() do
 			if not zoneReady() then task.wait(.25) else
+			drainPending()
 			local tick=clock(); table.clear(due); for _,j in ipairs(JOBS) do if tick>=j.at then due[#due+1]=j end end
 			table.sort(due,function(a,b) local da,db=tick-a.at,tick-b.at; return da==db and a.seq<b.seq or da>db end)
 			for _,j in ipairs(due) do if clock()-tick>=budget then break end; local ok,res=pcall(j.fn); if j.once or res=="done" then remove(j.name) else j.at=clock()+math.max(.02,j.every*(.75+RNG:NextNumber()*.5)) end end
