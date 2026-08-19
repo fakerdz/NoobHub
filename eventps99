@@ -38,7 +38,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Zone_Min="ZONE_MIN",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Zone_Min="ZONE_MIN",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -132,17 +132,30 @@ local OK, ERR = pcall(function()
 			part.CanCollide,part.CanTouch,part.CanQuery,part.CastShadow=false,false,false,false
 		end)
 	end
+	-- ══ HOÃN VIỆC NÉN BREAKABLE ══════════════════════════════════════════════
+	-- Trước đây nén NGAY trong handler Breakables_Created. Lúc vào raid, cả phòng
+	-- stream về một lượt -> hàng trăm sự kiện -> hàng trăm vòng Destroy() dồn vào
+	-- đúng khoảnh khắc client đang dựng map. PC nuốt trôi, điện thoại nghẽn rồi
+	-- bị đá về main. Đây LÀ nguyên nhân, đã xác nhận bằng cách tắt Stub_Breakable.
+	--
+	-- Giờ chỉ xếp hàng. Job "stub" nhả dần, và chỉ chạy sau khi zoneReady().
+	local stubQ,stubN,stubI={},0,0
+	local function queueStub(model)
+		if CFG.STUB_BREAKABLE==false or not model then return end
+		if stubN-stubI>=num("STUB_QUEUE_MAX",4000) then return end
+		stubN=stubN+1; stubQ[stubN]=model
+	end
 	local function lightenBreakable(item)
 		if not item then return end
 		pcall(function() item.modifier.NoParticles=true end)
-		compactBreakable(item.model)
+		queueStub(item.model)
 	end
 	if CFG.STUB_BREAKABLE~=false and B then
 		task.defer(function()
 			local th=workspace:FindFirstChild("__THINGS")
 			local folder=th and th:FindFirstChild("Breakables")
 			if not folder then return end
-			for _,m in ipairs(folder:GetChildren()) do compactBreakable(m) end
+			for _,m in ipairs(folder:GetChildren()) do queueStub(m) end
 		end)
 	end
 	local RNG=Random.new((clock()*1e6+(LP.UserId or 0))%2147483647); local JOBS={}; local seq=0
@@ -198,6 +211,19 @@ local OK, ERR = pcall(function()
 		if clock()-zrAt<.25 then return zrVal end
 		zrAt=clock(); zrVal=select(3,scanBreakZones())>=num("ZONE_MIN",1)
 		return zrVal
+	end
+	-- Nhả dần: mỗi nhịp nén tối đa STUB_BATCH cái, và CHƯA có BREAK_ZONES thì
+	-- chưa động tới - đúng lúc map đang dựng là lúc phải để client yên.
+	local function stubStep()
+		if CFG.STUB_BREAKABLE==false then stubQ,stubN,stubI={},0,0; return "done" end
+		if stubI>=stubN then return end
+		if not zoneReady() then return end
+		local left=math.max(1,math.floor(num("STUB_BATCH",15)))
+		while stubI<stubN and left>0 do
+			stubI=stubI+1; local m=stubQ[stubI]; stubQ[stubI]=nil; left=left-1
+			if m and m.Parent then compactBreakable(m) end
+		end
+		if stubI>=stubN then stubQ,stubN,stubI={},0,0 end
 	end
 	local function gateOk()
 		local want=tostring(CFG.GATE_INSTANCE or "FiestaMaze")
@@ -2212,7 +2238,7 @@ end   -- LOW_GRAPHIC
 		pcall(setcap,cap)
 	end
 	fpsCap(); add("fpsCap",10,fpsCap)
-	add("controller",.35,controller); add("scan",num("SCAN_EVERY",.5),function() if lobby() or maze() or eternal() then scanBreakables(); refreshTargets() end end)
+	add("stub",num("STUB_STEP",.25),stubStep); add("controller",.35,controller); add("scan",num("SCAN_EVERY",.5),function() if lobby() or maze() or eternal() then scanBreakables(); refreshTargets() end end)
 	local last=clock(); add("farm",num("TAP_STEP",.05),function() local t=clock(); tap(t-last); last=t end); add("move",num("MOVE_STEP",.5),function() if maze() or eternal() then move(); bossKey() elseif lobby() then move() end end)
 	add("booster",num("CONSUME_EVERY",10),booster); add("items",12,items); add("mailLoot",math.min(num("MAIL_EVERY",60),num("CLAIM_MAIL_EVERY",15)),mailAndLoot); add("notify",num("NOTIFY_EVERY",30),notify); add("performance",15,performance); add("antiAfk",45,antiAfk); add("hud",1,hud); add("hudFx",num("HUD_FX_STEP",.5),hudFx)
 	add("save",num("SAVE_EVERY",15),function()
@@ -2224,12 +2250,19 @@ end   -- LOW_GRAPHIC
 	local budget=math.max(.004,num("TICK_BUDGET",.012))
 	local due={}
 	-- The only worker. All remote calls are serialized here.
+	-- ══ CỔNG DUY NHẤT: CHƯA CÓ BREAK_ZONE THÌ KHÔNG JOB NÀO CHẠY ═════════════
+	-- Đặt ở tầng lịch chạy, không rải if vào từng hàm - kiểu đó luôn sót chỗ.
+	-- zoneReady() trả TRUE khi đang ở NGOÀI maze, nên lobby vẫn farm bình thường;
+	-- chỉ trong maze mà chưa thấy BREAK_ZONES mới đứng chờ.
+	-- Không thể khoá chết: zone do server đẩy xuống, không cần job nào làm hộ.
 	task.spawn(function()
 		while alive() do
+			if not zoneReady() then task.wait(.25) else
 			local tick=clock(); table.clear(due); for _,j in ipairs(JOBS) do if tick>=j.at then due[#due+1]=j end end
 			table.sort(due,function(a,b) local da,db=tick-a.at,tick-b.at; return da==db and a.seq<b.seq or da>db end)
 			for _,j in ipairs(due) do if clock()-tick>=budget then break end; local ok,res=pcall(j.fn); if j.once or res=="done" then remove(j.name) else j.at=clock()+math.max(.02,j.every*(.75+RNG:NextNumber()*.5)) end end
 			local nextAt=tick+.5; for _,j in ipairs(JOBS) do if j.at<nextAt then nextAt=j.at end end; task.wait(math.clamp(nextAt-clock(),.02,.5))
+			end
 		end
 		for i=#JOBS,1,-1 do JOBS[i]=nil end
 	end)
