@@ -1337,13 +1337,27 @@ end   -- LOW_GRAPHIC
 		-- không vào được, không thấy lỗi, pcall vẫn trả true.
 		-- Thử nhánh thẳng trước, hỏng mới rơi về nhánh cũ.
 		bg(function()
-			-- KIỂM LẠI TRONG LUỒNG PHỤ: giữa lúc controller quyết định và lúc luồng
-			-- này chạy có khe hở, game có thể đã tự đưa mình về lobby xong. Gọi
-			-- Enter khi ĐANG ở lobby thì enterInstance chạy leaveInstance trước ->
-			-- rời lobby rồi vào lại.
+			-- ══ Y HỆT Fiesta_All: TELE TỚI CỔNG + GIẢ CHẠM ══════════════════
+			--     part = Instancing.GetEnterPart("FiestaLobby")
+			--     root.CFrame = CFrame.new(part.Position + Vector3.new(0,2,0))
+			--     fireTouch(root,part,0); wait .05; fireTouch(root,part,1); wait .2
+			--     chưa vào -> thử NGƯỢC CHIỀU fireTouch(part,root,...)
+			-- Đi qua handler Touched của game thay vì gọi hàm export.
+			-- Kiểm lại id() trong luồng phụ: giữa lúc quyết định và lúc chạy có
+			-- khe hở, gọi Enter khi ĐANG ở lobby sẽ làm nó rời rồi vào lại.
 			if id()=="FiestaLobby" then return end
-			-- Tham số 2 = bỏ qua GUIFX.Transition (chỗ ném lỗi trong executor).
-			-- Đo bằng LobbyRaid: pcall=true, err=nil, vào ngay lần đầu.
+			local part=select(2,pcall(Inst.GetEnterPart,"FiestaLobby"))
+			local r2=root()
+			local touch=(getgenv and getgenv().firetouchinterest) or firetouchinterest
+			if part and r2 and type(touch)=="function" then
+				r2.CFrame=CFrame.new(part.Position+Vector3.new(0,2,0))
+				pcall(touch,r2,part,0); task.wait(.05); pcall(touch,r2,part,1); task.wait(.2)
+				if id()=="FiestaLobby" then return end
+				pcall(touch,part,r2,0); task.wait(.05); pcall(touch,part,r2,1); task.wait(.2)
+				if id()=="FiestaLobby" then return end
+			end
+			-- Chạm không ăn (executor không có firetouchinterest, hoặc cổng chưa
+			-- stream) thì mới dùng hàm export.
 			pcall(Inst.Enter,"FiestaLobby",true)
 			if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
 		end)
