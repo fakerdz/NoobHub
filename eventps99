@@ -69,7 +69,19 @@ local OK, ERR = pcall(function()
 	-- rỗng thì chi phí gần bằng không.
 	-- KHONG IN GI RA CONSOLE. Giu ham rong de 10 cho goi khong phai sua, va de
 	-- bat lai chi bang mot dong khi can soi.
-	local function LOG() end
+	-- LOG không in ra console (đúng yêu cầu), nhưng GHI LẠI vào vòng đệm trong
+	-- getgenv() để còn đọc được khi cần soi. Đọc:
+	--     for _,v in ipairs(getgenv().__FIESTA_LOG or {}) do print(v) end
+	-- Bật chi tiết: Farm_Debug = true
+	local LOGBUF={}
+	ENV.__FIESTA_LOG=LOGBUF
+	local function LOG(...)
+		local n=select("#",...); if n==0 then return end
+		local t={}
+		for i=1,n do t[i]=tostring((select(i,...))) end
+		LOGBUF[#LOGBUF+1]=("%.1f  %s"):format(clock(),table.concat(t," "))
+		while #LOGBUF>num("LOG_MAX",200) do table.remove(LOGBUF,1) end
+	end
 	local DEBUG_AT={}
 	-- Đã tắt toàn bộ print cũ. Giữ lại hàm rỗng để 31 chỗ gọi không phải sửa,
 	-- và bật lại tức thì khi cần: FARM_DEBUG = true.
