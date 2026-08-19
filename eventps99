@@ -38,7 +38,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Switch_Freeze="SWITCH_FREEZE",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,PROGRESS_STUCK_SECS=180,TRANSIT_STUCK_SECS=30,FPS_DEAD=1.5,FPS_SPREAD=.5,FPS_WINDOW=30,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,SWITCH_FREEZE=5,RAID_OPEN_CHECK=8,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -1001,7 +1001,6 @@ end   -- LOW_GRAPHIC
 	-- Cổng cho mode Eternal: chưa đủ ETERNAL_MIN_MAZE thì KHÔNG vào.
 	-- Hụt đọc được thì trả 0, tức CHẶN - an toàn hơn là vào bừa rồi mất Daily Play.
 	local function mazeLevel() return n1(Raid and Raid.GetDifficultyLevel) or 0 end
-	local function rejoin() local T=game:GetService("TeleportService"); S.rejoinAt=clock(); if not pcall(T.TeleportToPlaceInstance,T,game.PlaceId,game.JobId,LP) then pcall(T.Teleport,T,game.PlaceId,LP) end; S.wanted,S.wantedAt,S.phase=nil,0,"rejoin" end
 
 	-- Snapshot một lần mỗi instance, sau đó cập nhật tăng/giảm bằng lifecycle event.
 	-- Full audit thưa để tự sửa nếu executor bỏ lỡ một FireAsync callback.
@@ -1076,11 +1075,11 @@ end   -- LOW_GRAPHIC
 	-- Lúc chuyển lobby->raid client đang dựng map, nhồi thêm damage vào đúng
 	-- khúc đó là nghẽn -> máy yếu bị đá về main. Cờ tự lành: maze() lên true
 	-- là hết chặn, khỏi cần ai xoá.
-	local raidPending=false
+	local raidPendingAt=-1e9
 	local tapBudget,tapRate,tapRateAt=0,nil,-1e9
 	local function tap(dt)
 		if not CFG.AUTO_TAP then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=AUTO_TAP_FALSE"); return end
-		if raidPending and not(maze() or eternal()) then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=cho-vao-raid","instance=",id()); return end
+		if clock()-raidPendingAt<num("RAID_PENDING_MAX",15) and not(maze() or eternal()) then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=cho-vao-raid","instance=",id()); return end
 		if S.phase=="claim" or S.phase=="pad" then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=phase","phase=",S.phase); return end
 		if not(lobby() or maze() or eternal()) then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=outside-fiesta","instance=",id()); return end
 		refreshTargets(); pets(); if targetN==0 then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=no-target","cached=",#SCAN.list,"instance=",SCAN.instance,"phase=",S.phase); return end
@@ -1125,8 +1124,7 @@ end   -- LOW_GRAPHIC
 		-- executor không đủ quyền require module đó. Truyền NoTransition cũng không
 		-- tránh được (đã thử) vì cờ ấy nằm ở hàm trong, không phải tham số này.
 		-- Vì vậy pcall và BỎ QUA lỗi - đo kết quả bằng id(), không bằng pcall.
-		-- MỘT ĐƯỜNG DUY NHẤT. Vào không được thì transitionStuck() lo
-		-- (phase enterLobby quá 30s -> rejoin).
+		-- MỘT ĐƯỜNG DUY NHẤT. Vào không được thì vòng sau thử lại, không rejoin.
 		pcall(Inst.Enter,"FiestaLobby")
 		if id()=="FiestaLobby" then clearWant(); if toPinataZone then toPinataZone() end; return true end
 		return false
@@ -1406,7 +1404,6 @@ end   -- LOW_GRAPHIC
 	local teleKey,raidEntry=false,false
 	local lobbyAt=0           -- lúc bắt đầu nâng ở lần ghé lobby này (cho LOBBY_MAX_SECS)
 	local noTargetAt=0
-	local raidOpenAt=0        -- lúc vừa bắn mở raid, để soi cửa sổ vào maze
 	local function move()
 		if not CFG.TELE_ZONE then farmDebug("TELE_SKIP",num("FARM_DEBUG_EVERY",2),"reason=TELE_ZONE_FALSE"); return end
 		if S.phase=="pad" or S.phase=="claim" then farmDebug("TELE_SKIP",num("FARM_DEBUG_EVERY",2),"reason=phase","phase=",S.phase); return end
@@ -1598,9 +1595,9 @@ end   -- LOW_GRAPHIC
 			return true
 		end
 		want("FiestaLobby"); if clock()-leaveAt<1 then return false end; leaveAt=clock()
-		-- Ra không được thì CỨ THỬ LẠI, không đếm, không rejoin. Cổng
+		-- Ra không được thì CỨ THỬ LẠI, không đếm. Cổng
 		-- FiestaMazePrizePortal chỉ có ở cuối maze nên thất bại là chuyện bình
-		-- thường giữa lúc farm - đếm số lần thất bại rồi rejoin chính là cái làm
+		-- thường giữa lúc farm - đếm số lần thất bại rồi bỏ cuộc chính là cái làm
 		-- văng giữa lúc đang farm tốt.
 		if Inst.LeaveViaExit then pcall(Inst.LeaveViaExit,"FiestaMazePrizePortal",true); pcall(Inst.LeaveViaExit,"FiestaMazeSpawnPortal",true) else invoke("Instance: Leave","FiestaMaze") end; return false
 	end
@@ -1687,7 +1684,7 @@ end   -- LOW_GRAPHIC
 			-- Đọc kết quả thay vì vứt: CanJoin trả cả LÝ DO ("Already joined!",
 			-- "You may not join a maze which is more than 50% completed."). Bản cũ
 			-- pcall trống nên bị chối cũng im, cứ thế lặp 5s một lần không rõ vì sao.
-			S.raidCreateAt=clock(); raidOpenAt=clock(); raidPending=true; want("FiestaMaze")
+			S.raidCreateAt=clock(); raidPendingAt=clock(); want("FiestaMaze")
 			if mine.Join then
 				local ok,res,why=pcall(mine.Join,mine)
 				if not (ok and res) then LOG("[RAID] Join bi choi: "..tostring(ok and why or "loi goi")) end
@@ -1695,7 +1692,7 @@ end   -- LOW_GRAPHIC
 			return false
 		end
 		local p=pickPortal(); if not p then return false end
-		S.raidCreateAt=clock(); raidOpenAt=clock(); raidPending=true; want("FiestaMaze")
+		S.raidCreateAt=clock(); raidPendingAt=clock(); want("FiestaMaze")
 		local high=math.max(1,math.floor(n1(Raid.GetDifficultyLevel) or 1)); local limit=math.floor(num("LIMIT_MAX_TIER",0)); local diff=limit>0 and math.min(high,limit) or high; local mode=Raids and Raids.PartyMode and Raids.PartyMode[tostring(CFG.MODE_RAID or "Solo")]; local ok,yes,why,run=pcall(Raid.Create,{Portal=p,Difficulty=diff,PartyMode=mode,Tier=pickTier(diff)})
 		if not (ok and yes) then LOG("[RAID] Create bi choi (cong "..tostring(p).."): "..tostring(ok and why or "loi goi")); return false end
 		run=run or (ClientRaid and select(2,pcall(ClientRaid.GetCurrent)))
@@ -1705,86 +1702,8 @@ end   -- LOW_GRAPHIC
 		end
 		return false
 	end
-	-- ══ CHỈ CÒN 2 ĐIỀU KIỆN REJOIN ═══════════════════════════════════════════
-	-- Đã bỏ sạch: STUCK_REJOIN (không vào được instance sau 30s), HANG_REJOIN
-	-- (mất nhân vật / mất __THINGS 30s), rejoin khi vào Eternal thất bại, rejoin
-	-- theo số lần leave/create thất bại. Tất cả đều là ĐOÁN, và cái đoán sai thì
-	-- văng giữa lúc đang farm tốt.
-	--
-	-- 1) THANH PROGRESS KHÔNG NHÍCH 180s
-	--    Trong maze: FiestaMazeCmds.Progress() -> (số ô đã clear, tổng ô), đúng
-	--    nguồn thanh progress của game:
-	--        for _,v in ipairs(state.graph.order) do total+=1
-	--            if state.cleared[v] then done+=1 end end
-	--    Ở lobby: mức tiến bộ là LEVEL Pinata Challenge.
-	--    Đổi mode / đổi khu thì chữ ký đổi -> đồng hồ tự reset, không nổ oan.
-	local progAt,progSig=0,nil
-	local function progressStuck()
-		local sig
-		if maze() or eternal() then
-			if not (Maze and type(Maze.Progress)=="function") then progAt=0; return false end
-			local ok,a,b=pcall(Maze.Progress); if not ok or type(a)~="number" then progAt=0; return false end
-			sig="m:"..tostring(a).."/"..tostring(b)
-		elseif lobby() then
-			sig="l:"..tostring(S.pinata)
-		else
-			progAt=0; return false          -- đang ở khoảng giữa, chưa tính
-		end
-		if progAt==0 or sig~=progSig then progAt,progSig=clock(),sig; return false end
-		return clock()-progAt>=num("PROGRESS_STUCK_SECS",180)
-	end
-	-- 2) FPS ĐỨNG Ở ~1 SUỐT 30s VỚI BIÊN ĐỘ < 0.5
-	--    Đếm frame bằng MỘT connection RenderStepped làm đúng một phép cộng. Đắt
-	--    hơn 0 nhưng không có cách nào khác đo được FPS THẬT: các job trong
-	--    scheduler chạy theo os.clock(), không theo khung hình.
-	--    Ngưỡng: mọi mẫu trong cửa sổ đều <= FPS_DEAD và max-min <= FPS_SPREAD.
-	--    Cửa sổ chưa đầy thì KHÔNG kết luận, nên script vừa nạp không tự rejoin.
-	local frames,fpsRing,fpsAt=0,{},clock()
-	local lastFps=0          -- fps đo được ở nhịp gần nhất, fpsCap() dùng lại
-	pcall(function() reg("fpsFrames",game:GetService("RunService").RenderStepped,function() frames=frames+1 end) end)
-	local function fpsDead()
-		local t=clock(); local dt=t-fpsAt
-		if dt<1 then return false end
-		fpsAt=t; local fps=frames/dt; frames=0; lastFps=fps
-		local win=math.max(5,math.floor(num("FPS_WINDOW",30)))
-		fpsRing[#fpsRing+1]=fps
-		while #fpsRing>win do table.remove(fpsRing,1) end
-		if #fpsRing<win then return false end
-		local lo,hi=fpsRing[1],fpsRing[1]
-		for _,v in ipairs(fpsRing) do if v<lo then lo=v end; if v>hi then hi=v end end
-		if hi>num("FPS_DEAD",1.5) or hi-lo>num("FPS_SPREAD",.5) then return false end
-		table.clear(fpsRing)              -- nổ rồi thì xoá, đừng bắn liên tiếp
-		return true
-	end
-
 	local function controller()
-		if clock()-S.rejoinAt<15 then return end
 		if eternal() then S.phase="eternal"; return end
-		-- ══ SOI CỬA SỔ SAU KHI MỞ RAID ═══════════════════════════════════════
-		-- Chỉ kiểm ở đúng lúc dễ văng: vừa bắn Raids_Init + Raids_Enter xong.
-		-- Ngoài cửa sổ này thì không đụng, để farm chạy tự nhiên.
-		--   id() == "FiestaMaze"  -> vào được, đóng cửa sổ
-		--   id() == nil           -> văng ra MAIN, dọn trạng thái rồi về lobby
-		--   id() == "FiestaLobby" -> chưa vào được, để raidStart() bên dưới bắn lại
-		-- Dọn trạng thái là phần quan trọng: raidEntry còn true thì raid sau không
-		-- tele vào breakzone đầu, S.claim còn token của raid đã chết thì claim()
-		-- bắn Raids_CollectReward vào hư không.
-		if raidOpenAt>0 then
-			local cur=id()
-			if cur=="FiestaMaze" then
-				raidOpenAt=0; raidPending=false
-			elseif clock()-raidOpenAt>=num("RAID_OPEN_CHECK",8) then
-				raidOpenAt=0; raidPending=false
-				raidEntry,noTargetAt,teleKey=false,0,false
-				lobbyAt,upgLogged,bstLogged=0,false,false
-				S.claim,S.claimIndex=nil,0
-				if cur==nil then
-					LOG("[RAID] mo raid xong van o MAIN -> vao lai lobby")
-					S.phase="enterLobby"; enterLobby(); return
-				end
-				LOG("[RAID] mo raid xong van o lobby -> ban lai")
-			end
-		end
 		if S.mode=="challenge" then
 			local atZone=false
 			if maze() then S.phase="leave"; leave(); return end
@@ -1826,14 +1745,13 @@ end   -- LOW_GRAPHIC
 		-- XONG HẾT UPGRADE/BOOST MỚI MỞ RAID.
 		-- toPinataZone() false = chưa về tới khu (BREAK_ZONES lobby chưa stream)
 		-- -> chưa xác thực được gì, đừng bắn remote và cũng đừng mở raid.
-		-- Kẹt luôn ở đây thì transitionStuck() lo (phase raidEnter quá 30s -> rejoin).
 		if not toPinataZone() then return end
 		-- ĐÚNG MỘT LƯỢT NÂNG MỖI LẦN GHÉ LOBBY.
 		-- Không có cờ này thì vòng lặp KHÔNG BAO GIỜ kết thúc: đứng ở khu Pinata là
 		-- job tap vẫn đập boss lobby -> ra coin -> upgrade() lại mua được -> lại
 		-- return trước raidStart(). Nhìn ra ngoài thì y như "mode raid mà đi farm
 		-- pinata". Nâng hết một lượt là chốt, coin kiếm thêm để dành lượt ghé sau.
-		-- Đổi phase khi đang nâng: transitionStuck() chỉ soi "raidEnter", nên nâng
+		-- Đổi phase khi đang nâng: không còn bộ soi kẹt nào, nên nâng
 		-- lâu cũng không bị tính là kẹt chuyển khu.
 		-- XÁC THỰC HẾT SẠCH MỚI MỞ RAID. upgrade()/boost() trả false = đã duyệt
 		-- toàn bộ danh sách và KHÔNG còn cái nào mua/nạp được ở thời điểm này.
@@ -2217,41 +2135,9 @@ end   -- LOW_GRAPHIC
 		if (tonumber(CFG.LOW_GRAPHIC) or 0)>=2 then local d=workspace:FindFirstChild("__DEBRIS"); if d then for _,c in ipairs(d:GetChildren()) do if c.Name~="host" and not tostring(c.Name):find("RoomTemplate",1,true) then pcall(c.Destroy,c) end end end end
 		if CFG.DISABLE_3D then pcall(function() game:GetService("RunService"):Set3dRenderingEnabled(false) end) end
 	end
-	-- ══ KẸT CHUYỂN KHU ════════════════════════════════════════════════════════
-	--   khu thường -> FiestaLobby      (S.phase == "enterLobby")
-	--   FiestaLobby -> FiestaMaze      (S.phase == "raidEnter")
-	-- Quá TRANSIT_STUCK_SECS mà id() chưa đổi sang đích thì rejoin.
-	--
-	-- KHÔNG dùng lại S.wanted như bản cũ - đó chính là chỗ làm văng giữa lúc farm:
-	-- leave() gọi want("FiestaLobby") NGAY từ dòng đầu khi còn ở trong maze, rồi
-	-- nếu leave() thôi được gọi thì S.wanted kẹt mãi, không ai làm mới mốc.
-	-- Ở đây đọc THẲNG S.phase (controller đặt lại mỗi nhịp 0.35s) và reset mốc mỗi
-	-- khi id() đổi, nên đang farm bình thường thì không bao giờ chạm tới.
-	local transitAt,transitWant,transitId=0,nil,nil
-	local function transitionStuck()
-		local cur=id()
-		if cur~=transitId then transitId,transitAt,transitWant=cur,0,nil end
-		local want
-		if S.phase=="enterLobby" then want="FiestaLobby"
-		elseif S.phase=="raidEnter" then want="FiestaMaze" end
-		if not want or cur==want then transitAt,transitWant=0,nil; return false end
-		if transitWant~=want then transitWant,transitAt=want,clock(); return false end
-		return clock()-transitAt>=num("TRANSIT_STUCK_SECS",30),want,cur
-	end
 	local function watchdog()
 		S.lastBeat=clock()
-		-- Tới nơi thì xoá ý định. Chỉ còn là ghi sổ cho HUD, không còn dẫn tới rejoin.
 		if S.wanted and id()==S.wanted then clearWant() end
-		if clock()-S.rejoinAt<30 then return end     -- vừa rejoin thì cho nó ổn định
-		local stuck,want,cur=transitionStuck()
-		if stuck then
-			LOG(("[FIESTA] rejoin: ket chuyen khu %s -> %s qua %ds"):format(tostring(cur),tostring(want),num("TRANSIT_STUCK_SECS",30)))
-			transitAt,transitWant=0,nil; rejoin(); return
-		end
-		if progressStuck() then
-			LOG(("[FIESTA] rejoin: progress khong nhich %ds"):format(num("PROGRESS_STUCK_SECS",180)))
-			progAt=0; rejoin()
-		end
 	end
 
 	-- ══ MIỄN NHIỄM TRỌNG LỰC ══════════════════════════════════════════════════
@@ -2294,22 +2180,17 @@ end   -- LOW_GRAPHIC
 	-- FPS lấy mẫu MỖI GIÂY (cửa sổ 30 mẫu = 30s). Tách khỏi watchdog vì
 	-- Maze.Progress() phải đi hết graph.order - chạy mỗi giây là lãng phí.
 	-- ══ KHOÁ FPS ══════════════════════════════════════════════════════════════
-	-- Executor hay tự nhả cap (đổi map, alt-tab, rejoin) nên set một lần không đủ.
-	-- Chu kỳ 10s: fps vượt cap + 1 thì set lại. Dùng LẠI số liệu của bộ đo rejoin
-	-- (lastFps) nên KHÔNG thêm connection RenderStepped thứ hai.
+	-- Executor hay tự nhả cap (đổi map, alt-tab) nên set một lần không đủ.
+	-- Chu kỳ 10s: set lại vô điều kiện, không đo fps (đã bỏ bộ đếm RenderStepped).
 	-- Không cấu hình FPS, hoặc executor không có hàm set -> job tự gỡ luôn.
 	local setcap
 	local function fpsCap()
 		local cap=num("FPS",0); if cap<=0 then return "done" end
 		if setcap==nil then setcap=gfn("setfpscap") or gfn("set_fps_cap") or gfn("setfps") or false end
 		if not setcap then return "done" end
-		if lastFps<=0 or lastFps>cap+1 then pcall(setcap,cap) end
+		pcall(setcap,cap)
 	end
 	fpsCap(); add("fpsCap",10,fpsCap)
-	add("fpsWatch",1,function()
-		if clock()-S.rejoinAt<30 then return end
-		if fpsDead() then LOG(("[FIESTA] rejoin: fps dung ~%.1f suot %ds"):format(num("FPS_DEAD",1.5),math.floor(num("FPS_WINDOW",30)))); rejoin() end
-	end)
 	add("controller",.35,controller); add("scan",num("SCAN_EVERY",.5),function() if lobby() or maze() or eternal() then scanBreakables(); refreshTargets() end end)
 	local last=clock(); add("farm",num("TAP_STEP",.05),function() local t=clock(); tap(t-last); last=t end); add("move",num("MOVE_STEP",.5),function() if maze() or eternal() then move(); bossKey() elseif lobby() then move() end end)
 	add("booster",num("CONSUME_EVERY",10),booster); add("items",12,items); add("mailLoot",math.min(num("MAIL_EVERY",60),num("CLAIM_MAIL_EVERY",15)),mailAndLoot); add("notify",num("NOTIFY_EVERY",30),notify); add("performance",15,performance); add("antiAfk",45,antiAfk); add("hud",1,hud); add("hudFx",num("HUD_FX_STEP",.5),hudFx)
@@ -2321,33 +2202,13 @@ end   -- LOW_GRAPHIC
 	end)
 	local budget=math.max(.004,num("TICK_BUDGET",.012))
 	local due={}
-	-- ══ ĐÓNG BĂNG LÚC CHUYỂN MAP ══════════════════════════════════════════════
-	-- id() đổi = đang chuyển map. Khoảnh khắc đó client vừa dựng lại thế giới vừa
-	-- kéo stream, nhồi thêm remote vào là nghẽn -> máy yếu bị đá về main.
-	-- Nên: id() vừa đổi -> NGƯNG HẾT job, đẩy luôn lịch chạy của chúng ra sau,
-	-- SWITCH_FREEZE giây sau mới cho chạy lại.
-	--
-	-- Mốc là CHÍNH id() chứ không phải cờ raidPending, nên không thể kẹt: map đổi
-	-- xong là đồng hồ chạy, hết 5s tự mở, không cần ai gỡ. Nếu buộc vào raidPending
-	-- thì cờ đó do controller xoá mà controller lại đang bị đóng băng -> khoá chết.
-	local seenInst,thawAt=tostring(id()),-1e9
-	local function switching()
-		local cur=tostring(id())
-		if cur~=seenInst then
-			seenInst=cur; thawAt=clock()+num("SWITCH_FREEZE",5)
-			for _,j in ipairs(JOBS) do j.at=thawAt end
-		end
-		return clock()<thawAt
-	end
 	-- The only worker. All remote calls are serialized here.
 	task.spawn(function()
 		while alive() do
-			if switching() then task.wait(.25) else
 			local tick=clock(); table.clear(due); for _,j in ipairs(JOBS) do if tick>=j.at then due[#due+1]=j end end
 			table.sort(due,function(a,b) local da,db=tick-a.at,tick-b.at; return da==db and a.seq<b.seq or da>db end)
 			for _,j in ipairs(due) do if clock()-tick>=budget then break end; local ok,res=pcall(j.fn); if j.once or res=="done" then remove(j.name) else j.at=clock()+math.max(.02,j.every*(.75+RNG:NextNumber()*.5)) end end
 			local nextAt=tick+.5; for _,j in ipairs(JOBS) do if j.at<nextAt then nextAt=j.at end end; task.wait(math.clamp(nextAt-clock(),.02,.5))
-			end
 		end
 		for i=#JOBS,1,-1 do JOBS[i]=nil end
 	end)
