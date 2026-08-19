@@ -38,7 +38,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Zone_Min="ZONE_MIN",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Zone_Min="ZONE_MIN",Stub_GetStage="STUB_GETSTAGE",Stub_Compact="STUB_COMPACT",Stub_Hard="STUB_HARD",Stub_Batch="STUB_BATCH",Stub_Step="STUB_STEP",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,STUB_GETSTAGE=false,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -121,15 +121,40 @@ local OK, ERR = pcall(function()
 	end
 	-- Con nào ĐÃ dựng trước lúc hook thì lột tại chỗ: giữ Model + PrimaryPart,
 	-- xoá sạch phần còn lại rồi dẹp PrimaryPart về 1x1x1 vô hình.
+	-- ══ LÀM NHẸ BREAKABLE - KHÔNG ĐỔI CẤU TRÚC ═══════════════════════════════
+	-- Bản cũ Destroy() con của model rồi đổi Size/Anchored/CanCollide/CanTouch.
+	-- Đó là sửa VẬT LÝ và cấu trúc của instance do SERVER sở hữu, ngay lúc nó còn
+	-- đang replicate - và đó chính là thứ đá mình về main (đã dựng bảng thử: tắt
+	-- Compact là hết văng, bật lại là văng, không liên quan GetStage).
+	--
+	-- Bản này chỉ đụng thứ THUẦN HÌNH ẢNH, không đổi cấu trúc, không đổi vật lý:
+	--   Transparency / CastShadow trên part
+	--   .Enabled=false cho ParticleEmitter, Trail, Light, Beam
+	-- Không Destroy gì, không đổi Size, không Anchored, không CanCollide.
+	-- Muốn lại kiểu cũ thì Stub_Hard=true - nhưng nó là cái làm văng, cân nhắc.
 	local function compactBreakable(model)
 		if CFG.STUB_COMPACT==false or CFG.STUB_BREAKABLE==false or not model or not model:IsA("Model") then return end
 		local part=model.PrimaryPart
 		if not part or not part:IsA("BasePart") then return end
+		if CFG.STUB_HARD==true then
+			pcall(function()
+				for _,c in ipairs(model:GetChildren()) do if c~=part then c:Destroy() end end
+				for _,c in ipairs(part:GetChildren()) do c:Destroy() end
+				part.Transparency,part.Size,part.Anchored,part.Massless=1,Vector3.new(1,1,1),true,true
+				part.CanCollide,part.CanTouch,part.CanQuery,part.CastShadow=false,false,false,false
+			end)
+			return
+		end
 		pcall(function()
-			for _,c in ipairs(model:GetChildren()) do if c~=part then c:Destroy() end end
-			for _,c in ipairs(part:GetChildren()) do c:Destroy() end
-			part.Transparency,part.Size,part.Anchored,part.Massless=1,Vector3.new(1,1,1),true,true
-			part.CanCollide,part.CanTouch,part.CanQuery,part.CastShadow=false,false,false,false
+			part.Transparency,part.CastShadow=1,false
+			local function hide(x)
+				if x:IsA("ParticleEmitter") or x:IsA("Trail") or x:IsA("Beam") or x:IsA("Light") then x.Enabled=false
+				elseif x:IsA("BasePart") and x~=part then x.Transparency,x.CastShadow=1,false end
+			end
+			for _,c in ipairs(model:GetChildren()) do
+				hide(c)
+				for _,g in ipairs(c:GetChildren()) do hide(g) end   -- 2 tầng, không GetDescendants
+			end
 		end)
 	end
 	-- ══ HOÃN VIỆC NÉN BREAKABLE ══════════════════════════════════════════════
