@@ -1290,7 +1290,15 @@ end   -- LOW_GRAPHIC
 			return false                      -- server chặn: bắn nữa cũng vô ích
 		end
 		ENV.__FIESTA_ENTER_WHY=nil
-		pcall(Inst.Enter,"FiestaLobby")
+		-- Tham số 2 = BỎ QUA hiệu ứng chuyển cảnh. Dump, cuối enterInstance:
+		--     if u151 then u25:Call(u187)          <- vào thẳng
+		--     else GUIFX.Transition(v188, p153) end <- qua hiệu ứng
+		-- GUIFX.Transition là chỗ ném "Cannot require a non-RobloxScript module"
+		-- trong executor; vỡ trước khi gọi v188 thì u187 KHÔNG BAO GIỜ chạy ->
+		-- không vào được, không thấy lỗi, pcall vẫn trả true.
+		-- Thử nhánh thẳng trước, hỏng mới rơi về nhánh cũ.
+		pcall(Inst.Enter,"FiestaLobby",true)
+		if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
 		if id()=="FiestaLobby" then clearWant(); if toPinataZone then toPinataZone() end; return true end
 		return false
 	end
