@@ -1915,11 +1915,46 @@ end   -- LOW_GRAPHIC
 				end
 			end
 		end
-		if Enchant and EnchantItem and Mastery and type(CFG.Enchant)=="table" then
-			for _,want in ipairs(CFG.Enchant) do
-				local pool=select(2,pcall(Enchant.Get,want)) or {}; local best,bestTier
-				for uid,it in pairs(pool) do local tier=n1(it.GetTier,it) or 0; if select(2,pcall(Mastery.CanUseEnchant,tier)) and (not bestTier or tier>bestTier) then best,bestTier=uid,tier end end
-				if best then local equipped=select(2,pcall(Enchant.GetEquipped)) or {}; local have=false; for _,uid in pairs(equipped) do if uid==best then have=true end end; if not have then pcall(Enchant.Equip,best); return end end
+		-- ══ ENCHANT - port từ Fiesta_All ═════════════════════════════════════
+		-- Mỗi mục trong CFG.Enchant = 1 SLOT, TRÙNG TÊN = NHIỀU SLOT
+		-- ({"Criticals","Criticals"} = 2 slot Criticals). Cắt danh sách theo
+		-- GetMaxEquippedEnchants, thừa thì bỏ.
+		--
+		-- Bản cũ ở đây chỉ biết ĐEO, không bao giờ THÁO -> cây đang đeo sẵn (sai
+		-- loại, hoặc tier thấp hơn cây trong túi) chiếm hết slot, mấy tên đứng
+		-- cuối danh sách không bao giờ lên được. Đó là bug Fiesta_All đã sửa.
+		--
+		-- Gốc dùng task.wait(0.2) giữa các thao tác. Ở đây MỘT LUỒNG duy nhất nên
+		-- không được wait: mỗi nhịp làm ĐÚNG MỘT thao tác rồi return, nhịp sau
+		-- (items = 12s) tính lại từ đầu. Chậm hơn nhưng không treo scheduler.
+		if Enchant and EnchantItem and Mastery and type(CFG.Enchant)=="table" and #CFG.Enchant>0 then
+			local slots=n1(Enchant.GetMaxEquippedEnchants) or 0
+			if slots>0 then
+				local want={}                                   -- tên -> cần mấy cây
+				for k=1,math.min(#CFG.Enchant,slots) do
+					local nm=tostring(CFG.Enchant[k] or "")
+					if nm~="" then want[nm]=(want[nm] or 0)+1 end
+				end
+				-- Get(tên) trả CẢ cây đang đeo, nên lấy top-N tier cao nhất là ra
+				-- luôn tập đích, khỏi phân biệt đeo hay chưa.
+				local target={}
+				for nm,need in pairs(want) do
+					local pool={}
+					for uid,it in pairs(select(2,pcall(Enchant.Get,nm)) or {}) do
+						local tier=n1(it.GetTier,it) or 0
+						if select(2,pcall(Mastery.CanUseEnchant,tier)) then pool[#pool+1]={uid=uid,tier=tier} end
+					end
+					table.sort(pool,function(a,b) return a.tier>b.tier end)
+					for k=1,math.min(need,#pool) do target[pool[k].uid]=true end
+				end
+				-- THÁO trước: sai loại, dư số lượng, hoặc tier thấp hơn cây trong túi
+				local equipped=select(2,pcall(Enchant.GetEquipped)) or {}
+				for slot,uid in pairs(equipped) do
+					if target[uid] then target[uid]=nil
+					else pcall(Enchant.Unequip,tonumber(slot) or slot); return end
+				end
+				-- rồi mới ĐEO phần còn thiếu
+				for uid in pairs(target) do pcall(Enchant.Equip,uid); return end
 			end
 		end
 		if Buff and MiscItem and CFG.Toy~=false then local toys={["Toy Ball"]="ToyBall_Consume",["Toy Bone"]="ToyBone_Consume",["Squeaky Toy"]="SqueakyToy_Consume"}; for _,it in pairs(each(MiscItem)) do local id=tostring(select(2,pcall(it.GetId,it))); local r=toys[id]; if r and (n1(Buff.GetTimer,id) or 0)<=0 and (n1(it.GetAmount,it) or 0)>0 then invoke(r,1); return end end end
@@ -1927,15 +1962,73 @@ end   -- LOW_GRAPHIC
 	local function antiAfk()
 		if CFG.ANTI_AFK==false then return end; fire("Idle Tracking: Stop Timer"); local v; pcall(function() v=game:GetService("VirtualInputManager") end); if v then pcall(function() v:SendMouseButtonEvent(0,0,1,true,game,0); v:SendMouseButtonEvent(0,0,1,false,game,0) end) end
 	end
+	-- ══ MAIL - port từ Fiesta_All ════════════════════════════════════════════
+	-- parseAmount: MinAmount/KeepAmount nhận "10k", "1.5m", "2 b"... chứ không
+	-- chỉ số trần. Gốc có, bản cũ ở đây thiếu -> khai "10k" ra nil -> gửi sạch.
+	local function parseAmount(v)
+		if v==nil then return 0 end
+		local str=tostring(v):lower():gsub("[%s,]","")
+		local n,suf=str:match("^([%d%.]+)(%a*)$"); n=tonumber(n)
+		if not n then return 0 end
+		return n*(({k=1e3,m=1e6,b=1e9,t=1e12,qd=1e15,qn=1e18})[suf] or 1)
+	end
+	-- NHẬN MAIL: bắn remote gọn trước, ĐỌC kết quả. Hỏng thì đi đúng luồng nút
+	-- Claim All: YS_Load lấy inbox -> RD_Ingest theo lô 50 uuid.
+	-- Bản cũ chỉ bắn một phát rồi thôi, không biết mình vừa thất bại.
+	-- Một luồng nên không task.wait giữa các lô: mỗi nhịp gửi MỘT lô rồi return.
+	local function claimMail()
+		if CFG.CLAIM_MAIL==false then return false end
+		local ok,res=invoke("Mailbox: Claim All")
+		if ok and res~=false then invDirty=true; return false end
+		local okBox,box=pcall(N.Invoke,"YS_Load")
+		if not okBox or type(box)~="table" or type(box.Inbox)~="table" then return false end
+		local batch={}
+		for _,v in ipairs(box.Inbox) do
+			if type(v)=="table" and v.uuid then
+				batch[#batch+1]=v.uuid
+				if #batch>=50 then break end
+			end
+		end
+		if #batch==0 then return false end
+		pcall(N.Invoke,"RD_Ingest",batch); invDirty=true
+		return true                                    -- còn lô nữa: nhịp sau làm tiếp
+	end
 	local function mailAndLoot()
-		if CFG.CLAIM_MAIL~=false then invoke("Mailbox: Claim All") end
+		if claimMail() then return end
 		local to=CFG.MAIL_TO; if type(to)=="table" then to=to[1] end; to=tostring(to or "")
 		if to~="" and type(CFG.MAIL_ITEMS)=="table" then
 			for _,want in ipairs(CFG.MAIL_ITEMS) do
-				local cls=Items and Items[tostring(want.Class or "")]; if cls then
-					for _,it in pairs(each(cls)) do
-						local id=tostring(select(2,pcall(it.GetId,it))); local amount=n1(it.GetAmount,it) or 0; local keep=tonumber(want.KeepAmount) or 0
-						if id==tostring(want.Id or id) and amount>math.max(0,tonumber(want.MinAmount) or 0) and amount-keep>0 then invoke("EF_Relay",to,"",tostring(want.Class),select(2,pcall(it.GetUID,it)),math.floor(amount-keep)); invDirty=true; return end
+				local cls=tostring(want.Class or ""); local wid=tostring(want.Id or "")
+				local min,keep=parseAmount(want.MinAmount),parseAmount(want.KeepAmount)
+				-- Nhánh riêng: gửi mọi pet Huge/Titanic/Gargantuan, không so Id.
+				if cls=="Pet" and wid=="All Huges" and PetItem then
+					for _,pet in pairs(each(PetItem)) do
+						local okH,huge=pcall(function() return pet:IsHuge() or pet:IsTitanic() or pet:IsGargantuan() end)
+						if okH and huge then
+							invoke("EF_Relay",to,"",pet.Class.Name,select(2,pcall(pet.GetUID,pet)),1)
+							invDirty=true; return                  -- mỗi nhịp gửi 1 con
+						end
+					end
+				else
+					local class=Items and Items[cls]
+					if class then
+						for _,it in pairs(each(class)) do
+							if tostring(select(2,pcall(it.GetId,it)))==wid then
+								local tier=n1(it.GetTier,it) or 0
+								local tierOk=true
+								if want.Tier~=nil then
+									if type(want.Tier)=="table" then
+										tierOk=false
+										for _,t in ipairs(want.Tier) do if tier==tonumber(t) then tierOk=true break end end
+									else tierOk=(tier==tonumber(want.Tier)) end
+								end
+								local amt=n1(it.GetAmount,it) or 0
+								if tierOk and amt>=min and amt-keep>0 then
+									invoke("EF_Relay",to,"",it.Class.Name,select(2,pcall(it.GetUID,it)),math.floor(amt-keep))
+									invDirty=true; return                -- mỗi nhịp gửi 1 món
+								end
+							end
+						end
 					end
 				end
 			end
