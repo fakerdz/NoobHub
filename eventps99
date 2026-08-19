@@ -38,7 +38,7 @@ local OK, ERR = pcall(function()
 
 	ENV._PinataMaze = ENV._PinataMaze or ENV._AutoRank or ENV._Fiesta or {}
 	local CFG = ENV._PinataMaze; ENV._AutoRank, ENV._Fiesta = CFG, CFG
-	for a,b in pairs({Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
+	for a,b in pairs({Zone_Min="ZONE_MIN",Time_Challenge="CHALLENGE_MIN",Time_Raid="RAID_MIN",Mode_Raid="MODE_RAID",Rainbow="RAINBOW",Use_Boss_Key="USE_BOSS_KEY",Boss_Key_Every="BOSS_KEY_EVERY",Select_Cursed="SELECT_CURSED",Open_Fiesta_Egg="OPEN_KEY_EGG",Open_LootBox="OPEN_LOOTBOX",Anti_Afk="ANTI_AFK",Low_Gaphic="LOW_GRAPHIC",Low_Graphic="LOW_GRAPHIC",Disable3D="DISABLE_3D",Mail_To="MAIL_TO",Mail_Items="MAIL_ITEMS",Claim_Mail="CLAIM_MAIL",Notify="NOTIFY",COUNT_ITEMS="COUNT_ITEMS",Save_Every="SAVE_EVERY",Tap_Rate="TAP_RATE",Max_Target="MAX_TARGET",Tap_Dist="TAP_DIST"}) do if CFG[a] ~= nil then CFG[b] = CFG[a] end end
 	-- ══ CHUẨN HOÁ TÊN CONFIG ══════════════════════════════════════════════════
 	-- Bảng alias phía trên chỉ liệt kê tay ~24 tên; còn 50 key khác KHÔNG có, nên
 	-- gõ kiểu PascalCase (Stop_Challenge_When_PinataMax, Tele_Near, Fps...) là
@@ -54,7 +54,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -159,15 +159,53 @@ local OK, ERR = pcall(function()
 	-- job dọn thì cắt vào map của main world.
 	-- Gate_Instance = "FiestaMaze" (mặc định): chỉ trong raid.
 	-- Gate_Instance = ""          : bất kỳ instance nào (lobby + raid).
+	local function lobby() return id()=="FiestaLobby" end
+	local function maze() return id()=="FiestaMaze" end
+	local function eternal() return Eternal and select(2,pcall(Eternal.Running))==true end
+	-- ══ CỔNG BREAK_ZONE ══════════════════════════════════════════════════════
+	-- Đi Rooms › <bất kỳ> › BREAK_ZONES › BasePart. Không lọc tên phòng: Rooms
+	-- chứa lẫn Boss1..n, Room1..n, Gate_*, Preview_*, Checkerboard, Perimeter -
+	-- cái nào không có BREAK_ZONES thì tự rụng.
+	-- position=nil -> chỉ đếm, không tính khoảng cách.
+	local function scanBreakZones(position)
+		local ok,model=pcall(Inst.GetModel)
+		if not ok or typeof(model)~="Instance" then return nil,nil,0 end
+		local rooms=model:FindFirstChild("Rooms"); if not rooms then return nil,nil,0 end
+		local best,bestDist,n=nil,nil,0
+		local function eat(bz)
+			for _,part in ipairs(bz:GetChildren()) do
+				if part:IsA("BasePart") then
+					n=n+1
+					if position then
+						local d=(part.Position-position).Magnitude
+						if not bestDist or d<bestDist then best,bestDist=part,d end
+					end
+				end
+			end
+		end
+		for _,room in ipairs(rooms:GetChildren()) do
+			if room.Name=="BREAK_ZONES" then eat(room)
+			else local bz=room:FindFirstChild("BREAK_ZONES"); if bz then eat(bz) end end
+		end
+		return best,bestDist,n
+	end
+	-- Trong maze mà CHƯA có zone nào = phòng chưa dựng xong. Mọi logic đứng chờ.
+	-- Ngoài maze thì KHÔNG chặn - lobby không có Rooms, chặn ở đó là treo cả bot.
+	-- Cache 0.25s: hàm này bị hỏi ở nhịp 0.35s, khỏi duyệt cây mỗi lần.
+	local zrAt,zrVal=-1e9,false
+	local function zoneReady()
+		if not (maze() or eternal()) then return true end
+		if clock()-zrAt<.25 then return zrVal end
+		zrAt=clock(); zrVal=select(3,scanBreakZones())>=num("ZONE_MIN",1)
+		return zrVal
+	end
 	local function gateOk()
 		local want=tostring(CFG.GATE_INSTANCE or "FiestaMaze")
 		local cur=id()
 		if want=="" then return cur~=nil end
-		return cur==want
+		if cur~=want then return false end
+		return zoneReady()
 	end
-	local function lobby() return id()=="FiestaLobby" end
-	local function maze() return id()=="FiestaMaze" end
-	local function eternal() return Eternal and select(2,pcall(Eternal.Running))==true end
 
 	-- Key check runs once, then its retry is another scheduled step.
 	local function gfn(k)
@@ -1081,6 +1119,7 @@ end   -- LOW_GRAPHIC
 		if not CFG.AUTO_TAP then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=AUTO_TAP_FALSE"); return end
 		if clock()-raidPendingAt<num("RAID_PENDING_MAX",15) and not(maze() or eternal()) then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=cho-vao-raid","instance=",id()); return end
 		if S.phase=="claim" or S.phase=="pad" then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=phase","phase=",S.phase); return end
+		if not zoneReady() then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=chua-co-BREAK_ZONES"); return end
 		if not(lobby() or maze() or eternal()) then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=outside-fiesta","instance=",id()); return end
 		refreshTargets(); pets(); if targetN==0 then farmDebug("DAMAGE_IDLE",num("FARM_DEBUG_EVERY",2),"reason=no-target","cached=",#SCAN.list,"instance=",SCAN.instance,"phase=",S.phase); return end
 		if not tapRate or clock()-tapRateAt>30 then tapRateAt=clock(); local wanted=num("TAP_RATE",8); local cap=8; local p=Enchant and n1(Enchant.GetPower,"Swift Taps"); if p and p>0 then cap=math.min(16,8*(1+p/100)) end; tapRate=math.max(1,math.min(wanted,cap)) end
@@ -1379,33 +1418,7 @@ end   -- LOW_GRAPHIC
 			task.spawn(function() pcall(function() LP:RequestStreamAroundAsync(pos) end) end)
 		end
 	end
-	local function nearestBreakZone(position)
-		local ok,model=pcall(Inst.GetModel)
-		if not ok or typeof(model)~="Instance" then return nil,nil,0 end
-		local rooms=model:FindFirstChild("Rooms"); if not rooms then return nil,nil,0 end
-		local best,bestDist,n=nil,nil,0
-		local function eat(bz)
-			for _,part in ipairs(bz:GetChildren()) do
-				if part:IsA("BasePart") then
-					n=n+1
-					local d=(part.Position-position).Magnitude
-					if not bestDist or d<bestDist then best,bestDist=part,d end
-				end
-			end
-		end
-		-- Rooms chứa đủ thứ: Boss1..3, Room1..n, Gate_x_y_z, Preview_x_y,
-		-- Checkerboard, Perimeter... KHÔNG lọc theo tên - tên là thứ hay đổi nhất
-		-- giữa các bản game. Chỉ hỏi "có BREAK_ZONES không", có thì lấy part.
-		-- Không tìm thấy thì bỏ qua, khỏi cần biết đó là phòng hay tường.
-		for _,room in ipairs(rooms:GetChildren()) do
-			if room.Name=="BREAK_ZONES" then eat(room)
-			else
-				local bz=room:FindFirstChild("BREAK_ZONES")
-				if bz then eat(bz) end
-			end
-		end
-		return best,bestDist,n
-	end
+	local function nearestBreakZone(position) return scanBreakZones(position) end
 	-- noTargetAt: lúc bắt đầu chuỗi không có mục tiêu nào, để biết khi nào phải
 	-- làm lại cú vào raid. Khai TRƯỚC move() - dùng trước khi khai báo trong Luau
 	-- là lặng lẽ tạo một biến TOÀN CỤC khác.
