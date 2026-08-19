@@ -57,7 +57,7 @@ local OK, ERR = pcall(function()
 		end
 		for k,v in pairs(up) do if CFG[k]==nil then CFG[k]=v end end
 	end
-	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,REQUEST_STREAM=true,STREAM_EVERY=3,STREAM_ASYNC=false,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
+	for k,v in pairs({FIRST_MODE="challenge",ZONE_MIN=1,PEND_MAX=3000,STUB_HARD=true,STUB_BATCH=15,STUB_STEP=.25,STUB_QUEUE_MAX=4000,CHALLENGE_MIN=10,RAID_MIN=30,MODE_RAID="Solo",AUTO_CHALLENGE=true,AUTO_UPGRADE=true,STOP_CHALLENGE_WHEN_PINATAMAX=true,USE_BOSS_KEY=true,BOSS_KEY_EVERY=10,OPEN_KEY_EGG=true,AUTO_TAP=true,PET_DAMAGE=true,TAP_DIST=220,MAX_TARGET=30,TAP_RATE=8,TAP_STEP=.35,SCAN_EVERY=.5,TARGET_REFRESH=3,PET_HEARTBEAT=10,TELE_ZONE=true,TELE_NEAR=25,TELE_FAR=100,TELE_ONLY_EMPTY=true,TELE_ZONE_KEEP=true,ZONE_EVERY=1,MOVE_STEP=.5,RAID_ENTRY_RETRY=.5,FARM_DEBUG=true,FARM_DEBUG_EVERY=2,UPGRADE_MIN_MAZE=50000,ETERNAL_MIN_MAZE=50000,SELECT_CURSED=false,CURSED_MIN_MAZE=90000,BOSS_DEBUG=false,BOSS_DEBUG_EVERY=5,BOOST_EVERY=30,BOOST_MIN_LEFT=0,RAINBOW=true,ANTI_AFK=true,CLAIM_MAIL=true,CLAIM_MAIL_EVERY=15,MAIL_TO="",MAIL_ITEMS={},MAIL_EVERY=60,LOW_GRAPHIC=true,DISABLE_3D=false,POTATO=true,FAKE_MOBILE=true,PET_RENDER=false,FPS=0,RESUME=true,SAVE_EVERY=15,NO_GRAVITY=true,CONSUME_EVERY=10,ENTRY_REDO=5,LOBBY_MAX_SECS=0,GATE_INSTANCE="FiestaMaze"}) do if CFG[k] == nil then CFG[k] = v end end
 	for k,v in pairs({LIMIT_LEVEL_CHALLENGE=0,LIMIT_MAX_TIER=0,CHALLENGE_ONLY_PINATA=true,FOCUS_PINATA=true,CHALLENGE_RETRY=5,CLAIM_EGG=true,Fruit=true,Toy=true,Potion={},Enchant={},OPEN_LOOTBOX="",Consume={},RESUME_MAX_GAP=3600,NOTIFY={},NOTIFY_EVERY=30,Webhook="",Ping_ID=""}) do if CFG[k]==nil then CFG[k]=v end end
 	CFG.UPGRADES = type(CFG.UPGRADES)=="table" and #CFG.UPGRADES>0 and CFG.UPGRADES or {"FiestaDamage","FiestaSmashSpeed","FiestaPets","FiestaKeyDrops","FiestaBetterLoot","FiestaXP","FiestaTitanicChest","FiestaMoreCurrency","FiestaPetSpeed","FiestaBossDamage","FiestaHugeChest","FiestaEggCost"}
 	local function num(k,d) local n=tonumber(CFG[k]); return n==nil and d or n end
@@ -1515,35 +1515,6 @@ end   -- LOW_GRAPHIC
 	-- Dùng cái này cho cú VÀO RAID vì nó có SỚM NHẤT: BuildRoom dựng phòng là
 	-- BREAK_ZONES có ngay, còn breakable thì server spawn sau vài giây.
 	-- Chỉ GetChildren 2 tầng, không GetDescendants.
-	-- ══ XIN STREAM ═══════════════════════════════════════════════════════════
-	-- InstancingCmds CHỈ xin stream khi instance bật ServerOwnership:
-	--     if u16.config.ServerOwnership then
-	--         Network.Fire("RequestStreaming", enterPosition) end
-	--     Character:PivotTo(...)
-	--     if u16.config.ServerOwnership then awaitStreamed... end
-	-- FiestaMaze không bật cờ đó thì vào xong KHÔNG AI xin - phòng và breakable
-	-- về nhỏ giọt theo vị trí nhân vật, đúng cảnh "vào raid mà trống trơn".
-	--
-	-- Bắn cả hai đường vì chúng khác nhau:
-	--   Network.Fire("RequestStreaming", pos)   remote của game, server chủ động gửi
-	--   LocalPlayer:RequestStreamAroundAsync    API Roblox, client xin (YIELD nên
-	--                                           phải bọc task.spawn, không thì chẹn
-	--                                           cả scheduler một luồng)
-	-- Giãn STREAM_EVERY để không spam; mỗi lần tele xa thì xin lại.
-	local streamAt=-1e9
-	local function askStream(pos)
-		if CFG.REQUEST_STREAM==false or not pos then return end
-		if clock()-streamAt<num("STREAM_EVERY",3) then return end
-		streamAt=clock()
-		-- CHỈ dùng remote: nó KHÔNG yield nên gọi thẳng trong scheduler được.
-		-- RequestStreamAroundAsync thì YIELD - muốn gọi phải task.spawn, tức thêm
-		-- luồng thứ hai, phá đúng cái luật một luồng của file này. Nếu test cho
-		-- thấy chỉ API đó mới ăn thì bật Stream_Async, chấp nhận thêm luồng.
-		pcall(N.Fire,"RequestStreaming",pos)
-		if CFG.STREAM_ASYNC==true then
-			task.spawn(function() pcall(function() LP:RequestStreamAroundAsync(pos) end) end)
-		end
-	end
 	local function nearestBreakZone(position) return scanBreakZones(position) end
 	-- noTargetAt: lúc bắt đầu chuỗi không có mục tiêu nào, để biết khi nào phải
 	-- làm lại cú vào raid. Khai TRƯỚC move() - dùng trước khi khai báo trong Luau
@@ -1601,9 +1572,8 @@ end   -- LOW_GRAPHIC
 			if zone then
 				raidEntry=true; teleKey=false
 				farmDebug("TELE",0,"action=raid-entry-breakzone","zones=",zn,"distance=",math.floor(zdist+.5))
-				r.CFrame=CFrame.new(zone.Position+Vector3.new(0,4,0)); askStream(zone.Position); return
+				r.CFrame=CFrame.new(zone.Position+Vector3.new(0,4,0)); return
 			end
-			askStream(r.Position)   -- chua co gi -> giuc server gui vung quanh minh
 			farmDebug("TELE_ENTRY_WAIT",num("FARM_DEBUG_EVERY",2),"reason=chua-co-BREAK_ZONES","zones=",zn,"cached=",#scanBreakables(),"instance=",SCAN.instance)
 			return
 		end
@@ -1649,7 +1619,7 @@ end   -- LOW_GRAPHIC
 			local zone,zdist=nearestBreakZone(r.Position)
 			if zone and zdist and zdist>num("TELE_NEAR",25) then
 				farmDebug("TELE",0,"action=giu-breakzone","distance=",math.floor(zdist+.5))
-				r.CFrame=CFrame.new(zone.Position+Vector3.new(0,4,0)); askStream(zone.Position); teleKey=nil; return
+				r.CFrame=CFrame.new(zone.Position+Vector3.new(0,4,0)); teleKey=nil; return
 			end
 		end
 		if CFG.TELE_ONLY_EMPTY~=false then
