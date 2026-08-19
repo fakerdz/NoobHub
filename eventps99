@@ -33,7 +33,7 @@ local OK, ERR = pcall(function()
 	local BoostDir = req("Directory.Boosts"); local ConsumableItem = req("Items.ConsumableItem"); local Consumable = req("Client.ConsumableCmds"); local Effect = req("Client.EffectCmds"); local EffectDir = req("Directory.Effects")
 	local Raid = req("Client.RaidCmds"); local ClientRaid = req("Client.RaidCmds.ClientRaidInstance"); local Raids = req("Types.Raids")
 	local Maze = req("Client.FiestaMazeCmds"); local MazeUtil = req("Util.FiestaMaze"); local BossTier = req("Util.FiestaBossTier")
-	local Eternal = req("Client.EternalMazeCmds"); local FiestaLevel = req("Client.FiestaLevelCmds"); local Portals = req("Client.FiestaMazePortals")
+	local Eternal = req("Client.EternalMazeCmds"); local FiestaLevel = req("Client.FiestaLevelCmds"); local Portals = req("Client.FiestaMazePortals"); local RaidLevel = req("Client.FiestaRaidLevelCmds") or req("Client.FiestaRaidLevel")
 	local Luck = req("Client.FiestaLuckMachineCmds"); local Upg = req("Client.EventUpgradeCmds"); local UpgDir = req("Directory.EventUpgrades")
 	local FFlags = req("Client.FFlags"); local Currency = req("Client.CurrencyCmds"); local Enchant = req("Client.EnchantCmds"); local Potion = req("Client.PotionCmds"); local Fruit = req("Client.FruitCmds"); local Buff = req("Client.BuffCmds"); local Flag = req("Client.FlexibleFlagCmds"); local Mastery = req("Client.MasteryCmds")
 	local Signal = req("Signal"); local LootboxItem = req("Items.LootboxItem")
@@ -1894,11 +1894,31 @@ end   -- LOW_GRAPHIC
 			if maze() or not lobby() then return end   -- trạng thái đã đổi -> bỏ
 			-- Fiesta_All KHÔNG truyền Tier. Chỉ thêm khi thật sự cần Cursed, để
 			-- payload giống gốc nhất có thể ở trường hợp thường.
+			-- ══ KẸP DIFFICULTY THEO MỨC TỐI THIỂU CỦA SERVER ════════════════
+			-- Fiesta_All làm, bản này thiếu:
+			--     minimum = FiestaRaidLevel.MinDifficulty(highest, FFlags.Get(RaidMinDifficultyRatio))
+			--     diff = math.min(highest, math.max(requested, minimum))
+			-- Server không cho mở raid dưới một TỈ LỆ nhất định so với maze level
+			-- cao nhất. Đặt Limit_Max_Tier thấp mà bỏ qua bước này là gửi số dưới
+			-- ngưỡng -> raid tạo ra không khớp cái mình xin.
+			if RaidLevel and FFlags and FFlags.Keys and FFlags.Keys.RaidMinDifficultyRatio then
+				local okMin,vMin=pcall(function()
+					return RaidLevel.MinDifficulty(high,FFlags.Get(FFlags.Keys.RaidMinDifficultyRatio))
+				end)
+				if okMin then diff=math.min(high,math.max(diff,math.max(1,math.floor(tonumber(vMin) or 1)))) end
+			end
 			local cfg={Portal=p,Difficulty=diff,PartyMode=mode}
 			local tier=pickTier(diff); if tier and tier~=0 then cfg.Tier=tier end
 			local ok,yes,why,run=pcall(Raid.Create,cfg)
 			if not (ok and yes) then LOG("[RAID] Create bi choi (cong "..tostring(p).."): "..tostring(ok and why or "loi goi")); return end
 			run=run or (ClientRaid and select(2,pcall(ClientRaid.GetCurrent)))
+			-- Gốc: tạo xong PHẢI đúng difficulty đã xin, lệch thì bỏ, vòng sau làm lại.
+			if run and run.GetDifficulty then
+				local madeDiff=tonumber(select(2,pcall(run.GetDifficulty,run)))
+				if madeDiff and madeDiff~=diff then
+					LOG("[RAID] difficulty lech: xin",diff,"nhan",madeDiff,"-> bo, lam lai"); return
+				end
+			end
 			if run and run.Join and not maze() then
 				local jok,jres,jwhy=pcall(run.Join,run)
 				if not (jok and jres) then LOG("[RAID] Join sau Create bi choi: "..tostring(jok and jwhy or "loi goi")); return end
