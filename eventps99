@@ -1325,6 +1325,11 @@ end   -- LOW_GRAPHIC
 		-- không vào được, không thấy lỗi, pcall vẫn trả true.
 		-- Thử nhánh thẳng trước, hỏng mới rơi về nhánh cũ.
 		bg(function()
+			-- KIỂM LẠI TRONG LUỒNG PHỤ. Giữa lúc controller quyết định và lúc luồng
+			-- này chạy có một khe hở: game có thể đã tự đưa mình về lobby xong.
+			-- Gọi Enter khi ĐANG ở lobby thì enterInstance chạy leaveInstance
+			-- trước -> rời lobby rồi vào lại, thành vòng lặp vô nghĩa.
+			if id()=="FiestaLobby" then return end
 			pcall(Inst.Enter,"FiestaLobby",true)
 			if id()~="FiestaLobby" then pcall(Inst.Enter,"FiestaLobby") end
 		end)
@@ -1851,6 +1856,7 @@ end   -- LOW_GRAPHIC
 			S.raidCreateAt=clock(); raidPendingAt=clock(); want("FiestaMaze")
 			if mine.Join then
 				bg(function()
+					if maze() then return end        -- đã vào rồi thì thôi
 					local ok,res,why=pcall(mine.Join,mine)
 					if not (ok and res) then LOG("[RAID] Join bi choi: "..tostring(ok and why or "loi goi")) end
 				end)
@@ -1863,6 +1869,7 @@ end   -- LOW_GRAPHIC
 		-- Create RỒI Join, cả hai đều Network.Invoke (có yield) -> một luồng phụ
 		-- làm liền mạch, scheduler không bị treo theo.
 		bg(function()
+			if maze() or not lobby() then return end   -- trạng thái đã đổi -> bỏ
 			local ok,yes,why,run=pcall(Raid.Create,{Portal=p,Difficulty=diff,PartyMode=mode,Tier=pickTier(diff)})
 			if not (ok and yes) then LOG("[RAID] Create bi choi (cong "..tostring(p).."): "..tostring(ok and why or "loi goi")); return end
 			run=run or (ClientRaid and select(2,pcall(ClientRaid.GetCurrent)))
